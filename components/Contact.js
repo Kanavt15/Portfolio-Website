@@ -4,10 +4,10 @@ import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 
 const LINKS = [
-  { label: 'Email',    value: 'kanavtrivedi@email.com', href: 'mailto:kanavtrivedi@email.com' },
-  { label: 'Phone',    value: '+91 8976036164',          href: 'tel:+918976036164' },
-  { label: 'LinkedIn', value: 'linkedin.com/in/kanav',   href: 'https://linkedin.com' },
-  { label: 'GitHub',   value: 'github.com/kanav',        href: 'https://github.com' },
+  { label: 'Email',    value: 'kanavtrivedi@email.com',       href: 'mailto:kanavtrivedi@email.com' },
+  { label: 'Phone',    value: '+91 8976036164',               href: 'tel:+918976036164' },
+  { label: 'LinkedIn', value: 'linkedin.com/in/kanav-trivedi', href: 'https://www.linkedin.com/in/kanav-trivedi/' },
+  { label: 'GitHub',   value: 'github.com/Kanavt15',          href: 'https://github.com/Kanavt15' },
 ];
 
 export default function Contact() {
