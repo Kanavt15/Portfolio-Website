@@ -67,7 +67,6 @@ export default function Skills() {
         <div ref={headRef}>
           <h2 className="section-heading">
             <span className="clip"><span>MY</span></span>
-            <br />
             <span className="clip"><span><span style={{ color: 'var(--red)' }}>TOOLKIT</span></span></span>
           </h2>
         </div>

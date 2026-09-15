@@ -177,6 +177,27 @@ a { color: inherit; text-decoration: none; cursor: none; }
 }
 .tag:hover { border-color: var(--red); color: var(--red); }
 
+/* ─── Demo chip (HuggingFace / live demo link) ───────────── */
+.project-demo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--red);
+  border: 1px solid var(--red);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--white);
+  font-weight: 600;
+  cursor: none;
+  transition: background 0.25s, color 0.25s;
+}
+.project-demo-chip:hover {
+  background: transparent;
+  color: var(--red);
+}
+
 /* ─── Hero ───────────────────────────────────────────────── */
 .hero {
   height: 100svh;
@@ -419,7 +440,7 @@ a { color: inherit; text-decoration: none; cursor: none; }
 }
 
 /* ─── Projects ───────────────────────────────────────────── */
-.projects { background: var(--bg); padding-top: 0; }
+.projects { background: var(--bg); }
 .projects__grid {
   display: grid;
   gap: 2px;
@@ -433,26 +454,31 @@ a { color: inherit; text-decoration: none; cursor: none; }
 }
 .project-card__inner {
   padding: clamp(28px, 4vw, 56px);
-  min-height: clamp(180px, 25vw, 320px);
+  padding-right: clamp(80px, 10vw, 120px); /* keep clear of the arrow */
+  min-height: clamp(200px, 28vw, 360px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: min-height 0.6s var(--ease-out-expo);
 }
-.project-card__top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.project-card__top {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 .project-card__num {
   font-family: var(--font-display);
-  font-size: clamp(60px, 8vw, 120px);
+  font-size: clamp(52px, 6vw, 80px);
   line-height: 1;
   color: rgba(240,237,230,0.06);
   transition: color 0.4s;
+  user-select: none;
 }
 .project-card:hover .project-card__num { color: rgba(232,0,29,0.12); }
 .project-card__name {
   font-family: var(--font-display);
-  font-size: clamp(32px, 5vw, 72px);
+  font-size: clamp(36px, 5vw, 80px);
   transition: color 0.3s;
-  line-height: 1;
+  line-height: 0.95;
 }
 .project-card:hover .project-card__name { color: var(--red); }
 .project-card__desc {
@@ -490,6 +516,7 @@ a { color: inherit; text-decoration: none; cursor: none; }
   display: flex; align-items: center; justify-content: center;
   font-size: 16px;
   transition: background 0.3s, border-color 0.3s, transform 0.4s;
+  z-index: 2;
 }
 .project-card:hover .project-card__arrow {
   background: var(--red);
@@ -534,7 +561,8 @@ a { color: inherit; text-decoration: none; cursor: none; }
   gap: clamp(20px, 4vw, 60px);
   padding: 28px 0;
   border-bottom: 1px solid var(--gray-mid);
-  transition: background 0.3s;
+  transition: padding-left 0.35s var(--ease-out-expo);
+  color: var(--white);
 }
 .award-item:hover { padding-left: 20px; }
 .award-item__num {
@@ -556,7 +584,20 @@ a { color: inherit; text-decoration: none; cursor: none; }
   font-family: var(--font-display);
   font-size: 15px;
   color: var(--gray-lt);
-  margin-left: auto;
+}
+.award-item__cert-link {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--red);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(10px);
+  transition: opacity 0.3s, transform 0.3s var(--ease-out-expo);
+}
+.award-item:hover .award-item__cert-link {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 /* ─── Contact ─────────────────────────────────────────────── */

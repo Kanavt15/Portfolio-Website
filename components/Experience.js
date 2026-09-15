@@ -100,7 +100,6 @@ export default function Experience() {
         <div ref={headRef}>
           <h2 className="section-heading">
             <span className="clip"><span>WHERE</span></span>
-            <br />
             <span className="clip"><span>I&rsquo;VE <span style={{ color: 'var(--red)' }}>WORKED</span></span></span>
           </h2>
         </div>

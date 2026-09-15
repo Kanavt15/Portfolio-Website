@@ -6,7 +6,7 @@ import ScrollTrigger from 'gsap/ScrollTrigger';
 const STATS = [
   { num: '9.07', label: 'CGPA / 10' },
   { num: '2',    label: 'Internships' },
-  { num: '4',    label: 'Projects' },
+  { num: '7',    label: 'Projects' },
   { num: '3',    label: 'Awards' },
 ];
 
