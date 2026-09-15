@@ -600,6 +600,86 @@ a { color: inherit; text-decoration: none; cursor: none; }
   transform: translateX(0);
 }
 
+/* ─── Resume Section ─────────────────────────────────────── */
+.resume-section { background: var(--bg); }
+.resume-section__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 48px;
+}
+
+/* PDF wrapper */
+.resume-pdf-wrap {
+  position: relative;
+  border: 1px solid var(--gray-mid);
+  border-top: 3px solid var(--red);
+  background: #fff; /* PDF pages have white bg */
+  line-height: 0;   /* remove gap between stacked pages */
+}
+.resume-pdf-accent {
+  position: absolute;
+  top: -3px; left: 0;
+  width: 60px; height: 3px;
+  background: var(--red);
+}
+
+/* Annotation layer — makes PDF links clickable */
+.resume-pdf-page .react-pdf__Page__annotations {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: auto;
+}
+.resume-pdf-page .react-pdf__Page__annotations a,
+.resume-pdf-page .react-pdf__Page__annotations section {
+  cursor: pointer;
+}
+.resume-pdf-page {
+  position: relative;
+}
+
+/* Each rendered page */
+.resume-pdf-page canvas {
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+}
+.resume-pdf-page + .resume-pdf-page {
+  border-top: 1px solid #ddd;
+}
+
+/* Loading / error state */
+.resume-pdf-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 48px 32px;
+  color: var(--gray-lt);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--gray);
+}
+.resume-pdf-loading__dot {
+  width: 8px; height: 8px;
+  background: var(--red);
+  border-radius: 50%;
+  animation: pulse 1s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.6); }
+}
+
+/* actions */
+.resume-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+
 /* ─── Contact ─────────────────────────────────────────────── */
 .contact {
   background: var(--gray);

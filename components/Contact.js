@@ -35,7 +35,7 @@ export default function Contact() {
     <section className="section contact" id="contact">
       <div>
         <span className="section-label" style={{ display: 'block', marginBottom: '32px' }}>
-          06 / Contact
+          08 / Contact
         </span>
 
         <h2 className="contact__heading" ref={headRef}>

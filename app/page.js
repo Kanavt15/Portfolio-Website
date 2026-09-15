@@ -5,6 +5,7 @@ import Experience from '@/components/Experience';
 import Projects   from '@/components/Projects';
 import Skills     from '@/components/Skills';
 import Awards     from '@/components/Awards';
+import Resume     from '@/components/Resume';
 import Contact    from '@/components/Contact';
 
 export default function HomePage() {
@@ -21,6 +22,8 @@ export default function HomePage() {
       <Skills />
       <div className="line-divider" />
       <Awards />
+      <div className="line-divider" />
+      <Resume />
       <Contact />
     </>
   );
