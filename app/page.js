@@ -1,12 +1,12 @@
-import Hero       from '@/components/Hero';
-import Marquee    from '@/components/Marquee';
-import About      from '@/components/About';
-import Experience from '@/components/Experience';
-import Projects   from '@/components/Projects';
-import Skills     from '@/components/Skills';
-import Awards     from '@/components/Awards';
-import Resume     from '@/components/Resume';
-import Contact    from '@/components/Contact';
+import Hero         from '@/components/Hero';
+import Marquee      from '@/components/Marquee';
+import About        from '@/components/About';
+import Experience   from '@/components/Experience';
+import Projects     from '@/components/Projects';
+import Skills       from '@/components/Skills';
+import Awards       from '@/components/Awards';
+import ResumeClient from '@/components/ResumeClient';
+import Contact      from '@/components/Contact';
 
 export default function HomePage() {
   return (
@@ -23,7 +23,7 @@ export default function HomePage() {
       <div className="line-divider" />
       <Awards />
       <div className="line-divider" />
-      <Resume />
+      <ResumeClient />
       <Contact />
     </>
   );
