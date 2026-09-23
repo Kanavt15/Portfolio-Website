@@ -1,9 +1,7 @@
 'use client';
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
-
-const BG_NAME = 'KANAV TRIVEDI';
 
 export default function Hero() {
   const sectionRef = useRef(null);
@@ -13,63 +11,6 @@ export default function Hero() {
   const redLineRef = useRef(null);
   const eyebrowRef = useRef(null);
   const ctaRef     = useRef(null);
-  const charRefs   = useRef([]);
-
-  const handleCharHover = useCallback((index) => {
-    const el = charRefs.current[index];
-    if (!el || el.dataset.animating === 'true') return;
-    el.dataset.animating = 'true';
-
-    // Main character: jump + color flash + scale
-    gsap.timeline({
-      onComplete: () => { el.dataset.animating = 'false'; }
-    })
-      .to(el, {
-        y: -18,
-        scale: 1.3,
-        color: '#e8001d',
-        opacity: 0.35,
-        duration: 0.25,
-        ease: 'back.out(3)',
-      })
-      .to(el, {
-        y: 0,
-        scale: 1,
-        color: '',
-        opacity: '',
-        duration: 0.5,
-        ease: 'elastic.out(1, 0.3)',
-      });
-
-    // Wave propagation to neighbors
-    const neighbors = [
-      { offset: -1, delay: 0.04, intensity: 0.6 },
-      { offset: 1,  delay: 0.04, intensity: 0.6 },
-      { offset: -2, delay: 0.08, intensity: 0.3 },
-      { offset: 2,  delay: 0.08, intensity: 0.3 },
-    ];
-
-    neighbors.forEach(({ offset, delay, intensity }) => {
-      const neighbor = charRefs.current[index + offset];
-      if (!neighbor || neighbor.dataset.char === ' ') return;
-
-      gsap.timeline({ delay })
-        .to(neighbor, {
-          y: -10 * intensity,
-          scale: 1 + 0.15 * intensity,
-          opacity: 0.12 + 0.2 * intensity,
-          duration: 0.2,
-          ease: 'power2.out',
-        })
-        .to(neighbor, {
-          y: 0,
-          scale: 1,
-          opacity: '',
-          duration: 0.45,
-          ease: 'elastic.out(1, 0.4)',
-        });
-    });
-  }, []);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -83,21 +24,6 @@ export default function Hero() {
       .fromTo(subRef.current,     { opacity: 0, y: 24 },   { opacity: 1, y: 0, duration: 0.8 }, '-=0.4')
       .fromTo(ctaRef.current,     { opacity: 0, y: 24 },   { opacity: 1, y: 0, duration: 0.7 }, '-=0.5')
       .to(redLineRef.current,     { width: '100%', duration: 0.9, ease: 'power3.inOut' }, '-=0.7');
-
-    // Background name fade in
-    charRefs.current.forEach((el, i) => {
-      if (!el) return;
-      gsap.fromTo(el,
-        { opacity: 0, y: 20 },
-        {
-          opacity: el.dataset.char === ' ' ? 0 : 0.04,
-          y: 0,
-          duration: 0.8,
-          delay: 0.6 + i * 0.03,
-          ease: 'expo.out',
-        }
-      );
-    });
 
     // Parallax on scroll
     gsap.to(sectionRef.current, {
@@ -116,22 +42,6 @@ export default function Hero() {
 
   return (
     <section className="hero" ref={sectionRef} id="hero">
-      {/* Background name watermark */}
-      <div className="hero__bg-name" aria-hidden="true">
-        {BG_NAME.split('').map((char, i) => (
-          <span
-            key={i}
-            className={`hero__bg-char${char === ' ' ? ' hero__bg-char--space' : ''}`}
-            ref={(el) => (charRefs.current[i] = el)}
-            data-char={char}
-            onMouseEnter={() => handleCharHover(i)}
-            style={{ opacity: 0 }}
-          >
-            {char === ' ' ? '\u00A0' : char}
-          </span>
-        ))}
-      </div>
-
       {/* Red baseline */}
       <div className="hero__red-line" ref={redLineRef} />
 
