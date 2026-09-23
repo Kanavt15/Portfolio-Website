@@ -4,31 +4,51 @@ import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 
 const SKILLS = [
-  { name: 'C / C++',      cat: 'Languages' },
-  { name: 'JavaScript',   cat: 'Languages' },
-  { name: 'Python',       cat: 'Languages' },
-  { name: 'SQL',          cat: 'Languages' },
-  { name: 'Node.js',      cat: 'Backend' },
-  { name: 'Express.js',   cat: 'Backend' },
-  { name: 'REST APIs',    cat: 'Backend' },
-  { name: 'React',        cat: 'Frontend' },
-  { name: 'Next.js',      cat: 'Frontend' },
-  { name: 'MongoDB',      cat: 'Database' },
-  { name: 'MySQL',        cat: 'Database' },
-  { name: 'PostgreSQL',   cat: 'Database' },
-  { name: 'TensorFlow',   cat: 'AI / ML' },
-  { name: 'PyTorch',      cat: 'AI / ML' },
-  { name: 'Scikit-learn', cat: 'AI / ML' },
-  { name: 'AWS Cloud',    cat: 'Cloud' },
-  { name: 'Git / GitHub', cat: 'Tools' },
-  { name: 'Docker',       cat: 'Tools' },
-  { name: 'Linux',        cat: 'Tools' },
-  { name: 'Three.js',     cat: 'Tools' },
+  { name: 'C / C++',      cat: 'Languages', icon: 'cplusplus' },
+  { name: 'JavaScript',   cat: 'Languages', icon: 'javascript' },
+  { name: 'Python',       cat: 'Languages', icon: 'python' },
+  { name: 'SQL',          cat: 'Languages', icon: 'mysql' },
+  { name: 'Node.js',      cat: 'Backend',   icon: 'nodedotjs' },
+  { name: 'Express.js',   cat: 'Backend',   icon: 'express' },
+  { name: 'REST APIs',    cat: 'Backend',   icon: null },
+  { name: 'React',        cat: 'Frontend',  icon: 'react' },
+  { name: 'Next.js',      cat: 'Frontend',  icon: 'nextdotjs' },
+  { name: 'MongoDB',      cat: 'Database',  icon: 'mongodb' },
+  { name: 'MySQL',        cat: 'Database',  icon: 'mysql' },
+  { name: 'PostgreSQL',   cat: 'Database',  icon: 'postgresql' },
+  { name: 'TensorFlow',   cat: 'AI / ML',   icon: 'tensorflow' },
+  { name: 'PyTorch',      cat: 'AI / ML',   icon: 'pytorch' },
+  { name: 'Scikit-learn', cat: 'AI / ML',   icon: 'scikitlearn' },
+  { name: 'AWS Cloud',    cat: 'Cloud',     icon: 'amazonaws' },
+  { name: 'Git / GitHub', cat: 'Tools',     icon: 'git' },
+  { name: 'Docker',       cat: 'Tools',     icon: 'docker' },
+  { name: 'Linux',        cat: 'Tools',     icon: 'linux' },
+  { name: 'Three.js',     cat: 'Tools',     icon: 'threedotjs' },
 ];
 
+/* Custom API icon SVG for REST APIs */
+function ApiIcon({ className }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M4 6h16M4 12h16M4 18h16" />
+      <circle cx="8" cy="6" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="16" cy="18" r="1.5" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 export default function Skills() {
-  const gridRef   = useRef(null);
-  const headRef   = useRef(null);
+  const gridRef = useRef(null);
+  const headRef = useRef(null);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -74,9 +94,25 @@ export default function Skills() {
 
       <div className="skills__grid" ref={gridRef}>
         {SKILLS.map((s) => (
-          <div className="skill-item" key={s.name} style={{ opacity: 0 }}>
-            <div className="skill-item__name">{s.name}</div>
-            <div className="skill-item__cat">{s.cat}</div>
+          <div className="skill-item" key={s.name} style={{ opacity: 0 }} data-hover>
+            <div className="skill-item__icon-wrap">
+              {s.icon ? (
+                <img
+                  className="skill-item__icon"
+                  src={`https://cdn.simpleicons.org/${s.icon}/f0ede6`}
+                  alt={s.name}
+                  width={28}
+                  height={28}
+                  loading="lazy"
+                />
+              ) : (
+                <ApiIcon className="skill-item__icon skill-item__icon--svg" />
+              )}
+            </div>
+            <div>
+              <div className="skill-item__name">{s.name}</div>
+              <div className="skill-item__cat">{s.cat}</div>
+            </div>
           </div>
         ))}
       </div>
