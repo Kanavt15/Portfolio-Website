@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
+import MagneticButton from './MagneticButton';
 
 const NAV_ITEMS = [
   { label: 'About',      href: '#about' },
@@ -38,28 +39,34 @@ export default function Nav() {
 
   return (
     <nav className="nav" ref={navRef} style={{ opacity: 0 }}>
-      <Link href="/" className="nav__logo">
-        KT<span>.</span>
-      </Link>
+      <MagneticButton strength={0.25}>
+        <Link href="/" className="nav__logo">
+          KT<span>.</span>
+        </Link>
+      </MagneticButton>
 
       <ul className="nav__links">
         {NAV_ITEMS.map((item) => (
           <li key={item.label}>
-            <a href={item.href}>{item.label}</a>
+            <MagneticButton strength={0.3}>
+              <a href={item.href}>{item.label}</a>
+            </MagneticButton>
           </li>
         ))}
       </ul>
 
-      <a
-        href="/Kanav-Resume.pdf"
-        target="_blank"
-        rel="noreferrer"
-        className="btn"
-        style={{ padding: '10px 20px', fontSize: '11px' }}
-        data-magnetic
-      >
-        Resume ↗
-      </a>
+      <MagneticButton strength={0.35}>
+        <a
+          href="/Kanav-Resume.pdf"
+          target="_blank"
+          rel="noreferrer"
+          className="btn"
+          style={{ padding: '10px 20px', fontSize: '11px' }}
+          data-magnetic
+        >
+          Resume ↗
+        </a>
+      </MagneticButton>
     </nav>
   );
 }

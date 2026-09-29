@@ -3,6 +3,8 @@ import Cursor       from '@/components/Cursor';
 import Grain        from '@/components/Grain';
 import SmoothScroll from '@/components/SmoothScroll';
 import Nav          from '@/components/Nav';
+import ScrollProgress from '@/components/ScrollProgress';
+import FloatingDock   from '@/components/FloatingDock';
 
 export const metadata = {
   title: 'Kanav Trivedi — Developer & ML Engineer',
@@ -28,6 +30,8 @@ export default function RootLayout({ children }) {
         <SmoothScroll>
           <Cursor />
           <Grain />
+          <ScrollProgress />
+          <FloatingDock />
           <Nav />
           <main>{children}</main>
         </SmoothScroll>

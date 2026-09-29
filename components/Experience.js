@@ -2,6 +2,7 @@
 import { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
+import TextScramble from './TextScramble';
 
 const EXPERIENCES = [
   {
@@ -96,7 +97,9 @@ export default function Experience() {
   return (
     <section className="section experience" id="experience">
       <div className="exp__header">
-        <span className="section-label">02 / Experience</span>
+        <span className="section-label">
+          <TextScramble text="02 / Experience" className="section-label" />
+        </span>
         <div ref={headRef}>
           <h2 className="section-heading">
             <span className="clip"><span>WHERE</span></span>

@@ -2,6 +2,7 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
+import TextScramble from './TextScramble';
 
 const AWARDS = [
   {
@@ -68,7 +69,9 @@ export default function Awards() {
           marginBottom: '0',
         }}
       >
-        <span className="section-label">05 / Recognition</span>
+        <span className="section-label">
+          <TextScramble text="05 / Recognition" className="section-label" />
+        </span>
         <div ref={headRef}>
           <h2 className="section-heading">
             <span className="clip"><span>AWARDS &amp;</span></span>

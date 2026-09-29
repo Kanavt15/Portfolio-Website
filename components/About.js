@@ -2,6 +2,7 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
+import MagneticButton from './MagneticButton';
 
 const STATS = [
   { num: '9.07', label: 'CGPA / 10' },
@@ -89,9 +90,11 @@ export default function About() {
             and machine learning pipelines. I&rsquo;ve shipped production-grade systems at
             Claidroid Technologies and worked with Central Railway on data tooling.
           </p>
-          <a href="#contact" className="btn" data-magnetic>
-            Get in touch →
-          </a>
+          <MagneticButton strength={0.35}>
+            <a href="#contact" className="btn" data-magnetic>
+              Get in touch →
+            </a>
+          </MagneticButton>
         </div>
       </div>
 

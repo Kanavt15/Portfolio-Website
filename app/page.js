@@ -7,10 +7,11 @@ import Skills       from '@/components/Skills';
 import Awards       from '@/components/Awards';
 import ResumeClient from '@/components/ResumeClient';
 import Contact      from '@/components/Contact';
+import PageWrapper  from '@/components/PageWrapper';
 
 export default function HomePage() {
   return (
-    <>
+    <PageWrapper>
       <Hero />
       <Marquee />
       <About />
@@ -25,6 +26,6 @@ export default function HomePage() {
       <div className="line-divider" />
       <ResumeClient />
       <Contact />
-    </>
+    </PageWrapper>
   );
 }

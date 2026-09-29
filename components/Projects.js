@@ -2,6 +2,9 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
+import GlowCard from './GlowCard';
+import TextScramble from './TextScramble';
+import MagneticButton from './MagneticButton';
 
 const PROJECTS = [
   {
@@ -78,7 +81,9 @@ export default function Projects() {
           marginBottom: '60px',
         }}
       >
-        <span className="section-label">03 / Projects</span>
+        <span className="section-label">
+          <TextScramble text="03 / Projects" className="section-label" />
+        </span>
         <div ref={headRef}>
           <h2 className="section-heading">
             <span className="clip"><span>SELECTED</span></span>
@@ -89,63 +94,69 @@ export default function Projects() {
 
       <div className="projects__grid">
         {PROJECTS.map((p, i) => (
-          <a
-            key={p.num}
-            href={p.url}
-            target="_blank"
-            rel="noreferrer"
-            className="project-card"
-            ref={el => (cardsRef.current[i] = el)}
-            style={{ opacity: 0, display: 'block' }}
-          >
-            {/* Arrow — rendered first, sits absolute top-right via CSS z-index 2 */}
-            <div className="project-card__arrow">↗</div>
+          <GlowCard key={p.num}>
+            <a
+              href={p.url}
+              target="_blank"
+              rel="noreferrer"
+              className="project-card"
+              ref={el => (cardsRef.current[i] = el)}
+              style={{ opacity: 0, display: 'block' }}
+            >
+              {/* Arrow — rendered first, sits absolute top-right via CSS z-index 2 */}
+              <div className="project-card__arrow">↗</div>
 
-            <div className="project-card__inner">
-              {/* Num stacks above Name (flex-column) */}
-              <div className="project-card__top">
-                <span className="project-card__num">{p.num}</span>
-                <h3 className="project-card__name">{p.name}</h3>
-              </div>
+              <div className="project-card__inner">
+                {/* Num stacks above Name (flex-column) */}
+                <div className="project-card__top">
+                  <span className="project-card__num">{p.num}</span>
+                  <h3 className="project-card__name">{p.name}</h3>
+                </div>
 
-              {/* Description + tags — revealed on hover */}
-              <div>
-                <p className="project-card__desc">{p.desc}</p>
-                <div className="project-card__footer">
-                  {p.tags.map(t => (
-                    <span className="tag" key={t}>{t}</span>
-                  ))}
-                  {p.demo && (
-                    <a
-                      href={p.demo}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="project-demo-chip"
-                      onClick={e => e.stopPropagation()}
-                    >
-                      ▶ Try it live
-                    </a>
-                  )}
+                {/* Description + tags — revealed on hover */}
+                <div>
+                  <p className="project-card__desc">{p.desc}</p>
+                  <div className="project-card__footer">
+                    {p.tags.map(t => (
+                      <span className="tag" key={t}>{t}</span>
+                    ))}
+                    {p.demo && (
+                      <span
+                        className="project-demo-chip"
+                        onClick={e => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          window.open(p.demo, '_blank', 'noreferrer');
+                        }}
+                        role="link"
+                        tabIndex={0}
+                      >
+                        ▶ Try it live
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          </a>
+            </a>
+          </GlowCard>
         ))}
       </div>
 
       {/* More on GitHub */}
       <div style={{ marginTop: '40px', display: 'flex', justifyContent: 'flex-end' }}>
-        <a
-          href="https://github.com/Kanavt15"
-          target="_blank"
-          rel="noreferrer"
-          className="btn"
-          data-magnetic
-          style={{ gap: '14px' }}
-        >
-          More on GitHub
-          <span style={{ fontSize: '18px', lineHeight: 1 }}>↗</span>
-        </a>
+        <MagneticButton strength={0.35}>
+          <a
+            href="https://github.com/Kanavt15"
+            target="_blank"
+            rel="noreferrer"
+            className="btn"
+            data-magnetic
+            style={{ gap: '14px' }}
+          >
+            More on GitHub
+            <span style={{ fontSize: '18px', lineHeight: 1 }}>↗</span>
+          </a>
+        </MagneticButton>
       </div>
     </section>
   );

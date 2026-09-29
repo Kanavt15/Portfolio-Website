@@ -2,6 +2,9 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
+import ParticleField from './ParticleField';
+import StatusLine from './StatusLine';
+import MagneticButton from './MagneticButton';
 
 export default function Hero() {
   const sectionRef = useRef(null);
@@ -42,6 +45,9 @@ export default function Hero() {
 
   return (
     <section className="hero" ref={sectionRef} id="hero">
+      {/* Ambient particle background */}
+      <ParticleField />
+
       {/* Red baseline */}
       <div className="hero__red-line" ref={redLineRef} />
 
@@ -66,24 +72,31 @@ export default function Hero() {
           scalable APIs, and ML-powered experiences.
         </p>
         <div ref={ctaRef} style={{ opacity: 0, display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-          <a
-            href="#projects"
-            className="btn btn-red"
-            data-magnetic
-          >
-            View Work ↓
-          </a>
-          <a
-            href="/Kanav-Resume.pdf"
-            target="_blank"
-            rel="noreferrer"
-            className="btn"
-            data-magnetic
-          >
-            Resume ↗
-          </a>
+          <MagneticButton strength={0.4}>
+            <a
+              href="#projects"
+              className="btn btn-red"
+              data-magnetic
+            >
+              View Work ↓
+            </a>
+          </MagneticButton>
+          <MagneticButton strength={0.4}>
+            <a
+              href="/Kanav-Resume.pdf"
+              target="_blank"
+              rel="noreferrer"
+              className="btn"
+              data-magnetic
+            >
+              Resume ↗
+            </a>
+          </MagneticButton>
         </div>
       </div>
+
+      {/* Live status bar */}
+      <StatusLine />
 
       <div className="hero__scroll-indicator">
         <div className="hero__scroll-line" />

@@ -2,6 +2,7 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
+import TextScramble from './TextScramble';
 
 const SKILLS = [
   { name: 'C / C++',      cat: 'Languages', icon: 'cplusplus' },
@@ -97,7 +98,9 @@ export default function Skills() {
           marginBottom: 0,
         }}
       >
-        <span className="section-label">04 / Skills</span>
+        <span className="section-label">
+          <TextScramble text="04 / Skills" className="section-label" />
+        </span>
         <div ref={headRef}>
           <h2 className="section-heading">
             <span className="clip"><span>MY</span></span>
