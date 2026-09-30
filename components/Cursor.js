@@ -2,48 +2,91 @@
 import { useEffect, useRef, useCallback } from 'react';
 import gsap from 'gsap';
 
-const TRAIL_COUNT = 8;
+const TRAIL_COUNT = 12;
+const PARTICLE_POOL = 20;
 
 export default function Cursor() {
   const cursorRef = useRef(null);
-  const dotRef = useRef(null);
-  const blobRef = useRef(null);
+  const crosshairRef = useRef(null);
+  const ringRef = useRef(null);
+  const glowRef = useRef(null);
   const trailRefs = useRef([]);
-  const rippleContainerRef = useRef(null);
+  const particleContainerRef = useRef(null);
   const pos = useRef({ x: -100, y: -100 });
-  const blobPos = useRef({ x: -100, y: -100 });
+  const ringPos = useRef({ x: -100, y: -100 });
+  const glowPos = useRef({ x: -100, y: -100 });
   const trailPositions = useRef(
     Array.from({ length: TRAIL_COUNT }, () => ({ x: -100, y: -100 }))
   );
   const rafRef = useRef(null);
   const velocityRef = useRef({ x: 0, y: 0 });
   const prevPos = useRef({ x: -100, y: -100 });
-  const morphAngle = useRef(0);
+  const ringAngle = useRef(0);
+  const hueRef = useRef(0);
+  const particleIndex = useRef(0);
+  const lastParticleTime = useRef(0);
 
-  const spawnRipple = useCallback((x, y) => {
-    if (!rippleContainerRef.current) return;
-    const ripple = document.createElement('div');
-    ripple.className = 'cursor__ripple';
-    ripple.style.left = `${x}px`;
-    ripple.style.top = `${y}px`;
-    rippleContainerRef.current.appendChild(ripple);
+  // Spawn click burst particles
+  const spawnBurst = useCallback((x, y) => {
+    if (!particleContainerRef.current) return;
+    const count = 8;
+    for (let i = 0; i < count; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'cursor__burst';
+      particle.style.left = `${x}px`;
+      particle.style.top = `${y}px`;
+      particleContainerRef.current.appendChild(particle);
+
+      const angle = (Math.PI * 2 * i) / count;
+      const dist = 40 + Math.random() * 30;
+
+      gsap.fromTo(
+        particle,
+        { scale: 1, opacity: 0.9, x: 0, y: 0 },
+        {
+          x: Math.cos(angle) * dist,
+          y: Math.sin(angle) * dist,
+          scale: 0,
+          opacity: 0,
+          duration: 0.6,
+          ease: 'expo.out',
+          onComplete: () => particle.remove(),
+        }
+      );
+    }
+  }, []);
+
+  // Spawn trailing aurora particles on fast movement
+  const spawnTrailParticle = useCallback((x, y, speed) => {
+    if (!particleContainerRef.current) return;
+    const particle = document.createElement('div');
+    particle.className = 'cursor__aurora-particle';
+    particle.style.left = `${x + (Math.random() - 0.5) * 20}px`;
+    particle.style.top = `${y + (Math.random() - 0.5) * 20}px`;
+    const size = 3 + Math.random() * 4;
+    particle.style.width = `${size}px`;
+    particle.style.height = `${size}px`;
+    particleContainerRef.current.appendChild(particle);
 
     gsap.fromTo(
-      ripple,
-      { scale: 0, opacity: 0.6 },
+      particle,
+      { scale: 1, opacity: 0.6 },
       {
-        scale: 3,
+        scale: 0,
         opacity: 0,
-        duration: 0.7,
-        ease: 'expo.out',
-        onComplete: () => ripple.remove(),
+        y: (Math.random() - 0.5) * 40,
+        x: (Math.random() - 0.5) * 40,
+        duration: 0.5 + Math.random() * 0.4,
+        ease: 'power2.out',
+        onComplete: () => particle.remove(),
       }
     );
   }, []);
 
   useEffect(() => {
-    const dot = dotRef.current;
-    const blob = blobRef.current;
+    const crosshair = crosshairRef.current;
+    const ring = ringRef.current;
+    const glow = glowRef.current;
     const trails = trailRefs.current;
 
     const onMove = (e) => {
@@ -53,70 +96,97 @@ export default function Cursor() {
         x: pos.current.x - prevPos.current.x,
         y: pos.current.y - prevPos.current.y,
       };
-      gsap.set(dot, { x: e.clientX, y: e.clientY });
+      gsap.set(crosshair, { x: e.clientX, y: e.clientY });
     };
 
     const lerp = (a, b, t) => a + (b - a) * t;
 
     const tick = () => {
-      // Blob follows with delay
-      blobPos.current.x = lerp(blobPos.current.x, pos.current.x, 0.12);
-      blobPos.current.y = lerp(blobPos.current.y, pos.current.y, 0.12);
-      
-      // Morphing border-radius based on movement
-      morphAngle.current += 0.04;
       const speed = Math.sqrt(
         velocityRef.current.x ** 2 + velocityRef.current.y ** 2
       );
-      const morph = Math.min(speed * 0.4, 15);
-      const a1 = 50 + Math.sin(morphAngle.current) * morph;
-      const a2 = 50 + Math.cos(morphAngle.current * 0.8) * morph;
-      const a3 = 50 + Math.sin(morphAngle.current * 1.2 + 1) * morph;
-      const a4 = 50 + Math.cos(morphAngle.current * 0.6 + 2) * morph;
 
-      // Calculate slight rotation based on movement direction
+      // Ring follows with springy delay
+      ringPos.current.x = lerp(ringPos.current.x, pos.current.x, 0.15);
+      ringPos.current.y = lerp(ringPos.current.y, pos.current.y, 0.15);
+
+      // Glow follows with even more delay
+      glowPos.current.x = lerp(glowPos.current.x, pos.current.x, 0.08);
+      glowPos.current.y = lerp(glowPos.current.y, pos.current.y, 0.08);
+
+      // Rotating ring with velocity-based morph
+      ringAngle.current += 0.03;
+      const morph = Math.min(speed * 0.5, 18);
+      const a1 = 50 + Math.sin(ringAngle.current) * morph;
+      const a2 = 50 + Math.cos(ringAngle.current * 0.7) * morph;
+      const a3 = 50 + Math.sin(ringAngle.current * 1.3 + 1) * morph;
+      const a4 = 50 + Math.cos(ringAngle.current * 0.5 + 2) * morph;
+
       const angle = Math.atan2(velocityRef.current.y, velocityRef.current.x);
       const rotDeg = speed > 1 ? (angle * 180) / Math.PI : 0;
 
-      gsap.set(blob, {
-        x: blobPos.current.x,
-        y: blobPos.current.y,
+      // Scale ring based on speed
+      const ringScale = 1 + Math.min(speed * 0.005, 0.2);
+
+      gsap.set(ring, {
+        x: ringPos.current.x,
+        y: ringPos.current.y,
         borderRadius: `${a1}% ${100 - a1}% ${a2}% ${100 - a2}% / ${a3}% ${a4}% ${100 - a4}% ${100 - a3}%`,
-        rotation: rotDeg * 0.3,
+        rotation: rotDeg * 0.3 + ringAngle.current * 2,
+        scale: ringScale,
       });
 
-      // Trail follows with cascading delay
+      // Update glow orb
+      gsap.set(glow, {
+        x: glowPos.current.x,
+        y: glowPos.current.y,
+        opacity: Math.min(speed * 0.03, 0.4),
+      });
+
+      // Trail follows with cascading delay — aurora trail
       for (let i = TRAIL_COUNT - 1; i > 0; i--) {
         trailPositions.current[i].x = lerp(
           trailPositions.current[i].x,
           trailPositions.current[i - 1].x,
-          0.25
+          0.28
         );
         trailPositions.current[i].y = lerp(
           trailPositions.current[i].y,
           trailPositions.current[i - 1].y,
-          0.25
+          0.28
         );
       }
       trailPositions.current[0].x = lerp(
         trailPositions.current[0].x,
         pos.current.x,
-        0.4
+        0.45
       );
       trailPositions.current[0].y = lerp(
         trailPositions.current[0].y,
         pos.current.y,
-        0.4
+        0.45
       );
+
+      // Cycle hue for aurora effect
+      hueRef.current = (hueRef.current + 0.5) % 360;
 
       trails.forEach((trail, i) => {
         if (!trail) return;
+        const trailOpacity = speed > 2 ? (1 - i / TRAIL_COUNT) * 0.6 : 0;
         gsap.set(trail, {
           x: trailPositions.current[i].x,
           y: trailPositions.current[i].y,
-          opacity: speed > 1.5 ? (1 - i / TRAIL_COUNT) * 0.5 : 0,
+          opacity: trailOpacity,
+          scale: 1 - (i / TRAIL_COUNT) * 0.5,
         });
       });
+
+      // Spawn floating particles on fast movement
+      const now = Date.now();
+      if (speed > 4 && now - lastParticleTime.current > 40) {
+        spawnTrailParticle(pos.current.x, pos.current.y, speed);
+        lastParticleTime.current = now;
+      }
 
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -130,7 +200,7 @@ export default function Cursor() {
     const rmHover = () => cursor?.classList.remove('hovering');
     const addClick = () => {
       cursor?.classList.add('clicking');
-      spawnRipple(pos.current.x, pos.current.y);
+      spawnBurst(pos.current.x, pos.current.y);
     };
     const rmClick = () => cursor?.classList.remove('clicking');
 
@@ -155,11 +225,11 @@ export default function Cursor() {
       document.removeEventListener('mouseup', rmClick);
       cancelAnimationFrame(rafRef.current);
     };
-  }, [spawnRipple]);
+  }, [spawnBurst, spawnTrailParticle]);
 
   return (
     <div className="cursor" ref={cursorRef}>
-      {/* Fading trail dots */}
+      {/* Aurora trail dots */}
       {Array.from({ length: TRAIL_COUNT }).map((_, i) => (
         <div
           key={i}
@@ -168,12 +238,18 @@ export default function Cursor() {
           style={{ '--trail-i': i }}
         />
       ))}
-      {/* Morphing blob ring */}
-      <div className="cursor__blob" ref={blobRef} />
-      {/* Center dot */}
-      <div className="cursor__dot" ref={dotRef} />
-      {/* Ripple container */}
-      <div className="cursor__ripple-container" ref={rippleContainerRef} />
+      {/* Glow orb */}
+      <div className="cursor__glow" ref={glowRef} />
+      {/* Morphing ring */}
+      <div className="cursor__ring" ref={ringRef} />
+      {/* Crosshair center */}
+      <div className="cursor__crosshair" ref={crosshairRef}>
+        <span className="cursor__crosshair-line cursor__crosshair-line--h" />
+        <span className="cursor__crosshair-line cursor__crosshair-line--v" />
+        <span className="cursor__crosshair-dot" />
+      </div>
+      {/* Particle container for bursts & aurora */}
+      <div className="cursor__particle-container" ref={particleContainerRef} />
     </div>
   );
 }

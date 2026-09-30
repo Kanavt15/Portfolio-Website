@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import TextScramble from './TextScramble';
@@ -64,6 +64,32 @@ const CUSTOM_ICONS = {
 export default function Skills() {
   const gridRef = useRef(null);
   const headRef = useRef(null);
+  const cardsRef = useRef([]);
+
+  // 3D tilt effect on each card
+  const handleMouseMove = useCallback((e, index) => {
+    const card = cardsRef.current[index];
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * -8;
+    const rotateY = ((x - centerX) / centerX) * 8;
+
+    card.style.setProperty('--rotate-x', `${rotateX}deg`);
+    card.style.setProperty('--rotate-y', `${rotateY}deg`);
+    card.style.setProperty('--glow-x', `${(x / rect.width) * 100}%`);
+    card.style.setProperty('--glow-y', `${(y / rect.height) * 100}%`);
+  }, []);
+
+  const handleMouseLeave = useCallback((index) => {
+    const card = cardsRef.current[index];
+    if (!card) return;
+    card.style.setProperty('--rotate-x', '0deg');
+    card.style.setProperty('--rotate-y', '0deg');
+  }, []);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -78,10 +104,10 @@ export default function Skills() {
 
     const items = gridRef.current?.querySelectorAll('.skill-item');
     if (items?.length) {
-      gsap.fromTo(items, { opacity: 0, y: 30 }, {
-        opacity: 1, y: 0,
-        stagger: { each: 0.04, from: 'start' },
-        duration: 0.7,
+      gsap.fromTo(items, { opacity: 0, y: 50, scale: 0.85, rotateX: 15 }, {
+        opacity: 1, y: 0, scale: 1, rotateX: 0,
+        stagger: { each: 0.05, from: 'random' },
+        duration: 0.9,
         ease: 'expo.out',
         scrollTrigger: { trigger: gridRef.current, start: 'top 80%' },
       });
@@ -110,8 +136,20 @@ export default function Skills() {
       </div>
 
       <div className="skills__grid" ref={gridRef}>
-        {SKILLS.map((s) => (
-          <div className="skill-item" key={s.name} style={{ opacity: 0 }} data-hover>
+        {SKILLS.map((s, index) => (
+          <div
+            className="skill-item"
+            key={s.name}
+            style={{ opacity: 0 }}
+            data-hover
+            ref={(el) => (cardsRef.current[index] = el)}
+            onMouseMove={(e) => handleMouseMove(e, index)}
+            onMouseLeave={() => handleMouseLeave(index)}
+          >
+            {/* Shimmer border overlay */}
+            <div className="skill-item__shimmer" />
+            {/* Glow spotlight */}
+            <div className="skill-item__spotlight" />
             <div className="skill-item__icon-wrap">
               {s.icon === null ? (
                 <ApiIcon className="skill-item__icon skill-item__icon--svg" />
