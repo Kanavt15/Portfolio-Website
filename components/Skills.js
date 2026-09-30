@@ -1,44 +1,205 @@
 'use client';
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import TextScramble from './TextScramble';
 
-const SKILLS = [
-  { name: 'C / C++',      cat: 'Languages', icon: 'cplusplus' },
-  { name: 'JavaScript',   cat: 'Languages', icon: 'javascript' },
-  { name: 'Python',       cat: 'Languages', icon: 'python' },
-  { name: 'SQL',          cat: 'Languages', icon: 'mysql' },
-  { name: 'Node.js',      cat: 'Backend',   icon: 'nodedotjs' },
-  { name: 'Express.js',   cat: 'Backend',   icon: 'express' },
-  { name: 'REST APIs',    cat: 'Backend',   icon: null },
-  { name: 'React',        cat: 'Frontend',  icon: 'react' },
-  { name: 'Next.js',      cat: 'Frontend',  icon: 'nextdotjs' },
-  { name: 'MongoDB',      cat: 'Database',  icon: 'mongodb' },
-  { name: 'MySQL',        cat: 'Database',  icon: 'mysql' },
-  { name: 'PostgreSQL',   cat: 'Database',  icon: 'postgresql' },
-  { name: 'TensorFlow',   cat: 'AI / ML',   icon: 'tensorflow' },
-  { name: 'PyTorch',      cat: 'AI / ML',   icon: 'pytorch' },
-  { name: 'Scikit-learn', cat: 'AI / ML',   icon: 'scikitlearn' },
-  { name: 'AWS Cloud',    cat: 'Cloud',     icon: 'aws' },
-  { name: 'Git / GitHub', cat: 'Tools',     icon: 'git' },
-  { name: 'Docker',       cat: 'Tools',     icon: 'docker' },
-  { name: 'Linux',        cat: 'Tools',     icon: 'linux' },
-  { name: 'Three.js',     cat: 'Tools',     icon: 'threedotjs' },
+/* ─── Skill → project + info mapping ──────────────────────── */
+const PROJECTS = [
+  { name: 'ReFace',      tags: ['Electron', 'Three.js', 'Python', 'Blender', 'MediaPipe'], url: 'https://github.com/Kanavt15/reface-id' },
+  { name: 'Vanaspati',   tags: ['React', 'Three.js', 'TypeScript', 'Vite', 'Tailwind', 'Zustand'], url: 'https://github.com/Kanavt15/virtual-herbal-garden' },
+  { name: 'Skill-Verse', tags: ['Node.js', 'Express.js', 'MySQL', 'REST API', 'EJS'], url: 'https://github.com/Kanavt15/SkillVerse' },
+  { name: 'CAD-C',       tags: ['Python', 'TensorFlow', 'CNN', 'OpenCV', 'NumPy'], url: 'https://github.com/Kanavt15/CAD-C' },
+  { name: 'SSTC',        tags: ['MongoDB', 'Express', 'React', 'Node.js', 'JWT'], url: 'https://github.com/Kanavt15/SSTC' },
 ];
 
-/* Custom SVG icons for skills without Simple Icons slugs */
+const SKILLS = [
+  {
+    name: 'C / C++',
+    cat: 'Languages',
+    icon: 'cplusplus',
+    desc: 'Systems programming language for high-performance computing, embedded systems, and competitive programming. Known for fine-grained memory control.',
+    usedIn: [],
+    level: 85,
+    since: '2021',
+  },
+  {
+    name: 'JavaScript',
+    cat: 'Languages',
+    icon: 'javascript',
+    desc: 'The language of the web. Used for full-stack development from dynamic frontends to server-side Node.js applications and RESTful APIs.',
+    usedIn: ['Vanaspati', 'Skill-Verse', 'SSTC'],
+    level: 92,
+    since: '2022',
+  },
+  {
+    name: 'Python',
+    cat: 'Languages',
+    icon: 'python',
+    desc: 'Versatile scripting language favoured for ML pipelines, data processing, and backend automation. Primary language for AI/ML work.',
+    usedIn: ['ReFace', 'CAD-C'],
+    level: 90,
+    since: '2021',
+  },
+  {
+    name: 'SQL',
+    cat: 'Languages',
+    icon: 'mysql',
+    desc: 'Structured Query Language for relational database management. Used for complex joins, stored procedures, and database design.',
+    usedIn: ['Skill-Verse'],
+    level: 80,
+    since: '2022',
+  },
+  {
+    name: 'Node.js',
+    cat: 'Backend',
+    icon: 'nodedotjs',
+    desc: 'JavaScript runtime built on V8 for building scalable server-side applications. Powers REST APIs, real-time services, and microservices.',
+    usedIn: ['Skill-Verse', 'SSTC'],
+    level: 88,
+    since: '2022',
+  },
+  {
+    name: 'Express.js',
+    cat: 'Backend',
+    icon: 'express',
+    desc: 'Minimalist web framework for Node.js. Used for building RESTful APIs, middleware pipelines, and MVC web applications.',
+    usedIn: ['Skill-Verse', 'SSTC'],
+    level: 86,
+    since: '2022',
+  },
+  {
+    name: 'REST APIs',
+    cat: 'Backend',
+    icon: null,
+    desc: 'Architectural style for distributed hypermedia systems. Designed and consumed RESTful services with proper auth, versioning, and error handling.',
+    usedIn: ['Skill-Verse', 'SSTC'],
+    level: 88,
+    since: '2022',
+  },
+  {
+    name: 'React',
+    cat: 'Frontend',
+    icon: 'react',
+    desc: 'Component-based UI library for building interactive single-page applications. Used with hooks, context, and modern patterns.',
+    usedIn: ['Vanaspati', 'SSTC'],
+    level: 85,
+    since: '2022',
+  },
+  {
+    name: 'Next.js',
+    cat: 'Frontend',
+    icon: 'nextdotjs',
+    desc: 'React framework with SSR, SSG, file-based routing, and API routes. This very portfolio is built with Next.js 16 + Turbopack.',
+    usedIn: [],
+    level: 82,
+    since: '2023',
+  },
+  {
+    name: 'MongoDB',
+    cat: 'Database',
+    icon: 'mongodb',
+    desc: 'Document-oriented NoSQL database. Used for flexible schema design, aggregation pipelines, and rapid prototyping.',
+    usedIn: ['SSTC'],
+    level: 78,
+    since: '2023',
+  },
+  {
+    name: 'MySQL',
+    cat: 'Database',
+    icon: 'mysql',
+    desc: 'Relational DBMS with ACID compliance. Used for complex relational data models, joins, and transactional systems.',
+    usedIn: ['Skill-Verse'],
+    level: 80,
+    since: '2022',
+  },
+  {
+    name: 'PostgreSQL',
+    cat: 'Database',
+    icon: 'postgresql',
+    desc: 'Advanced open-source RDBMS with powerful extensions. Preferred for production-grade applications needing JSON support and full-text search.',
+    usedIn: [],
+    level: 70,
+    since: '2023',
+  },
+  {
+    name: 'TensorFlow',
+    cat: 'AI / ML',
+    icon: 'tensorflow',
+    desc: 'End-to-end ML platform for building and deploying neural networks. Used for CNN training, model serving, and production ML pipelines.',
+    usedIn: ['CAD-C'],
+    level: 82,
+    since: '2022',
+  },
+  {
+    name: 'PyTorch',
+    cat: 'AI / ML',
+    icon: 'pytorch',
+    desc: 'Dynamic computation graph framework for research-driven deep learning. Used for rapid experimentation and custom layer design.',
+    usedIn: [],
+    level: 75,
+    since: '2023',
+  },
+  {
+    name: 'Scikit-learn',
+    cat: 'AI / ML',
+    icon: 'scikitlearn',
+    desc: 'Machine learning library for classical algorithms — SVMs, random forests, clustering, and preprocessing pipelines.',
+    usedIn: [],
+    level: 78,
+    since: '2022',
+  },
+  {
+    name: 'AWS Cloud',
+    cat: 'Cloud',
+    icon: 'aws',
+    desc: 'Amazon Web Services platform for cloud infrastructure. Experienced with EC2, S3, Lambda, and deployment workflows.',
+    usedIn: [],
+    level: 68,
+    since: '2023',
+  },
+  {
+    name: 'Git / GitHub',
+    cat: 'Tools',
+    icon: 'git',
+    desc: 'Version control system for collaborative software development. Used for branching strategies, PRs, CI workflows, and open-source contribution.',
+    usedIn: ['ReFace', 'Vanaspati', 'Skill-Verse', 'CAD-C', 'SSTC'],
+    level: 90,
+    since: '2021',
+  },
+  {
+    name: 'Docker',
+    cat: 'Tools',
+    icon: 'docker',
+    desc: 'Container platform for packaging applications with all their dependencies. Used for reproducible dev environments and deployment.',
+    usedIn: [],
+    level: 72,
+    since: '2023',
+  },
+  {
+    name: 'Linux',
+    cat: 'Tools',
+    icon: 'linux',
+    desc: 'Unix-based OS environment for development and server administration. Comfortable with bash scripting, process management, and SSH.',
+    usedIn: [],
+    level: 78,
+    since: '2021',
+  },
+  {
+    name: 'Three.js',
+    cat: 'Tools',
+    icon: 'threedotjs',
+    desc: 'WebGL-based 3D graphics library. Used for procedural 3D generation, real-time rendering, and interactive 3D experiences in the browser.',
+    usedIn: ['ReFace', 'Vanaspati'],
+    level: 80,
+    since: '2023',
+  },
+];
+
+/* ─── Custom SVG icons ────────────────────────────────────── */
 function ApiIcon({ className }) {
   return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M4 6h16M4 12h16M4 18h16" />
       <circle cx="8" cy="6" r="1.5" fill="currentColor" stroke="none" />
       <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
@@ -57,29 +218,125 @@ function AwsIcon({ className }) {
   );
 }
 
-const CUSTOM_ICONS = {
-  aws: AwsIcon,
-};
+const CUSTOM_ICONS = { aws: AwsIcon };
 
+/* ─── Level bar component ─────────────────────────────────── */
+function LevelBar({ level, animated }) {
+  const barRef = useRef(null);
+  useEffect(() => {
+    if (!animated || !barRef.current) return;
+    gsap.fromTo(barRef.current, { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: 'expo.out', delay: 0.1 });
+  }, [animated]);
+  return (
+    <div className="sk-panel__level-track">
+      <div className="sk-panel__level-fill" ref={barRef} style={{ '--level': `${level}%` }} />
+    </div>
+  );
+}
+
+/* ─── Skill panel (expanded drawer) ──────────────────────── */
+function SkillPanel({ skill, onClose }) {
+  const panelRef = useRef(null);
+  const [animReady, setAnimReady] = useState(false);
+
+  const usedProjects = PROJECTS.filter(p =>
+    skill.usedIn.includes(p.name)
+  );
+
+  useEffect(() => {
+    if (!panelRef.current) return;
+    gsap.fromTo(panelRef.current,
+      { opacity: 0, y: 20, scale: 0.97 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: 'expo.out',
+        onComplete: () => setAnimReady(true) }
+    );
+  }, []);
+
+  const close = useCallback(() => {
+    if (!panelRef.current) { onClose(); return; }
+    gsap.to(panelRef.current, {
+      opacity: 0, y: 12, scale: 0.97, duration: 0.25, ease: 'power2.in',
+      onComplete: onClose,
+    });
+  }, [onClose]);
+
+  return (
+    <div className="sk-panel" ref={panelRef} onClick={e => e.stopPropagation()}>
+      {/* Close */}
+      <button className="sk-panel__close" onClick={close} aria-label="Close">✕</button>
+
+      {/* Header */}
+      <div className="sk-panel__header">
+        <div className="sk-panel__icon-wrap">
+          {skill.icon === null ? (
+            <ApiIcon className="sk-panel__icon sk-panel__icon--svg" />
+          ) : CUSTOM_ICONS[skill.icon] ? (
+            (() => { const Icon = CUSTOM_ICONS[skill.icon]; return <Icon className="sk-panel__icon sk-panel__icon--svg" />; })()
+          ) : (
+            <img src={`https://cdn.simpleicons.org/${skill.icon}/f0ede6`} alt={skill.name} width={36} height={36} />
+          )}
+        </div>
+        <div>
+          <div className="sk-panel__name">{skill.name}</div>
+          <div className="sk-panel__cat">{skill.cat} · Since {skill.since}</div>
+        </div>
+      </div>
+
+      {/* Proficiency bar */}
+      <div className="sk-panel__level-label">
+        <span>Proficiency</span>
+        <span className="sk-panel__level-num">{skill.level}%</span>
+      </div>
+      <LevelBar level={skill.level} animated={animReady} />
+
+      {/* Description */}
+      <p className="sk-panel__desc">{skill.desc}</p>
+
+      {/* Projects */}
+      <div className="sk-panel__projects-label">
+        {usedProjects.length > 0 ? 'Used in' : 'Not yet used in a featured project'}
+      </div>
+      {usedProjects.length > 0 && (
+        <div className="sk-panel__projects">
+          {usedProjects.map(p => (
+            <a
+              key={p.name}
+              href={p.url}
+              target="_blank"
+              rel="noreferrer"
+              className="sk-panel__project-chip"
+              data-hover
+            >
+              <span className="sk-panel__project-chip-dot" />
+              {p.name}
+              <span className="sk-panel__project-chip-arrow">↗</span>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── Main Skills component ───────────────────────────────── */
 export default function Skills() {
   const gridRef = useRef(null);
   const headRef = useRef(null);
   const cardsRef = useRef([]);
+  const [activeSkill, setActiveSkill] = useState(null);
+  const overlayRef = useRef(null);
 
-  // 3D tilt effect on each card
+  // 3D tilt
   const handleMouseMove = useCallback((e, index) => {
     const card = cardsRef.current[index];
     if (!card) return;
     const rect = card.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const rotateX = ((y - centerY) / centerY) * -8;
-    const rotateY = ((x - centerX) / centerX) * 8;
-
-    card.style.setProperty('--rotate-x', `${rotateX}deg`);
-    card.style.setProperty('--rotate-y', `${rotateY}deg`);
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    card.style.setProperty('--rotate-x', `${((y - cy) / cy) * -7}deg`);
+    card.style.setProperty('--rotate-y', `${((x - cx) / cx) * 7}deg`);
     card.style.setProperty('--glow-x', `${(x / rect.width) * 100}%`);
     card.style.setProperty('--glow-y', `${(y / rect.height) * 100}%`);
   }, []);
@@ -90,6 +347,25 @@ export default function Skills() {
     card.style.setProperty('--rotate-x', '0deg');
     card.style.setProperty('--rotate-y', '0deg');
   }, []);
+
+  const openPanel = useCallback((skill) => {
+    setActiveSkill(skill);
+  }, []);
+
+  const closePanel = useCallback(() => {
+    setActiveSkill(null);
+  }, []);
+
+  // Close on overlay click
+  useEffect(() => {
+    if (!overlayRef.current) return;
+    const el = overlayRef.current;
+    if (activeSkill) {
+      gsap.to(el, { opacity: 1, duration: 0.3, pointerEvents: 'all' });
+    } else {
+      gsap.to(el, { opacity: 0, duration: 0.2, pointerEvents: 'none' });
+    }
+  }, [activeSkill]);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -104,8 +380,8 @@ export default function Skills() {
 
     const items = gridRef.current?.querySelectorAll('.skill-item');
     if (items?.length) {
-      gsap.fromTo(items, { opacity: 0, y: 50, scale: 0.85, rotateX: 15 }, {
-        opacity: 1, y: 0, scale: 1, rotateX: 0,
+      gsap.fromTo(items, { opacity: 0, y: 50, scale: 0.85 }, {
+        opacity: 1, y: 0, scale: 1,
         stagger: { each: 0.05, from: 'random' },
         duration: 0.9,
         ease: 'expo.out',
@@ -115,15 +391,16 @@ export default function Skills() {
   }, []);
 
   return (
-    <section className="section skills" id="skills">
+    <section className="section skills" id="skills" style={{ position: 'relative' }}>
+      {/* Backdrop overlay when panel open */}
       <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'baseline',
-          marginBottom: 0,
-        }}
-      >
+        className="sk-overlay"
+        ref={overlayRef}
+        onClick={closePanel}
+        style={{ opacity: 0, pointerEvents: 'none' }}
+      />
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 0 }}>
         <span className="section-label">
           <TextScramble text="04 / Skills" className="section-label" />
         </span>
@@ -135,44 +412,60 @@ export default function Skills() {
         </div>
       </div>
 
+      {/* Click-hint */}
+      <p className="skills__hint">Click any card to explore details &amp; projects →</p>
+
       <div className="skills__grid" ref={gridRef}>
         {SKILLS.map((s, index) => (
           <div
-            className="skill-item"
+            className={`skill-item ${activeSkill?.name === s.name ? 'skill-item--active' : ''}`}
             key={s.name}
             style={{ opacity: 0 }}
             data-hover
             ref={(el) => (cardsRef.current[index] = el)}
             onMouseMove={(e) => handleMouseMove(e, index)}
             onMouseLeave={() => handleMouseLeave(index)}
+            onClick={() => openPanel(s)}
+            role="button"
+            tabIndex={0}
+            aria-label={`View details for ${s.name}`}
           >
-            {/* Shimmer border overlay */}
             <div className="skill-item__shimmer" />
-            {/* Glow spotlight */}
             <div className="skill-item__spotlight" />
+
             <div className="skill-item__icon-wrap">
               {s.icon === null ? (
                 <ApiIcon className="skill-item__icon skill-item__icon--svg" />
               ) : CUSTOM_ICONS[s.icon] ? (
                 (() => { const Icon = CUSTOM_ICONS[s.icon]; return <Icon className="skill-item__icon skill-item__icon--svg" />; })()
               ) : (
-                <img
-                  className="skill-item__icon"
-                  src={`https://cdn.simpleicons.org/${s.icon}/f0ede6`}
-                  alt={s.name}
-                  width={28}
-                  height={28}
-                  loading="lazy"
-                />
+                <img className="skill-item__icon" src={`https://cdn.simpleicons.org/${s.icon}/f0ede6`} alt={s.name} width={28} height={28} loading="lazy" />
               )}
             </div>
-            <div>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <div className="skill-item__name">{s.name}</div>
               <div className="skill-item__cat">{s.cat}</div>
+            </div>
+            {/* Project count badge */}
+            {s.usedIn.length > 0 && (
+              <div className="skill-item__badge" title={`Used in ${s.usedIn.length} project${s.usedIn.length > 1 ? 's' : ''}`}>
+                {s.usedIn.length}
+              </div>
+            )}
+            {/* Click indicator */}
+            <div className="skill-item__click-hint">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Skill detail panel */}
+      {activeSkill && (
+        <SkillPanel skill={activeSkill} onClose={closePanel} />
+      )}
     </section>
   );
 }

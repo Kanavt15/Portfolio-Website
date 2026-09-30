@@ -2,92 +2,73 @@
 import { useEffect, useRef, useCallback } from 'react';
 import gsap from 'gsap';
 
-const TRAIL_COUNT = 12;
-const PARTICLE_POOL = 20;
+// Number of helix strand points
+const HELIX_POINTS = 10;
 
 export default function Cursor() {
-  const cursorRef = useRef(null);
-  const crosshairRef = useRef(null);
-  const ringRef = useRef(null);
-  const glowRef = useRef(null);
-  const trailRefs = useRef([]);
-  const particleContainerRef = useRef(null);
-  const pos = useRef({ x: -100, y: -100 });
-  const ringPos = useRef({ x: -100, y: -100 });
-  const glowPos = useRef({ x: -100, y: -100 });
-  const trailPositions = useRef(
-    Array.from({ length: TRAIL_COUNT }, () => ({ x: -100, y: -100 }))
+  const dotRef = useRef(null);
+  const helixContainerRef = useRef(null);
+  const splashContainerRef = useRef(null);
+  const labelRef = useRef(null);
+  const helixRefs = useRef({ a: [], b: [] });
+
+  const pos = useRef({ x: -200, y: -200 });
+  const dotPos = useRef({ x: -200, y: -200 });
+  const helixPositions = useRef(
+    Array.from({ length: HELIX_POINTS }, () => ({ x: -200, y: -200 }))
   );
   const rafRef = useRef(null);
   const velocityRef = useRef({ x: 0, y: 0 });
-  const prevPos = useRef({ x: -100, y: -100 });
-  const ringAngle = useRef(0);
-  const hueRef = useRef(0);
-  const particleIndex = useRef(0);
-  const lastParticleTime = useRef(0);
+  const prevPos = useRef({ x: -200, y: -200 });
+  const phaseRef = useRef(0);
+  const isHovering = useRef(false);
+  const isClicking = useRef(false);
 
-  // Spawn click burst particles
-  const spawnBurst = useCallback((x, y) => {
-    if (!particleContainerRef.current) return;
-    const count = 8;
+  // Ink splash on click
+  const spawnSplash = useCallback((x, y) => {
+    if (!splashContainerRef.current) return;
+    const count = 6 + Math.floor(Math.random() * 4);
     for (let i = 0; i < count; i++) {
-      const particle = document.createElement('div');
-      particle.className = 'cursor__burst';
-      particle.style.left = `${x}px`;
-      particle.style.top = `${y}px`;
-      particleContainerRef.current.appendChild(particle);
-
-      const angle = (Math.PI * 2 * i) / count;
-      const dist = 40 + Math.random() * 30;
-
-      gsap.fromTo(
-        particle,
-        { scale: 1, opacity: 0.9, x: 0, y: 0 },
+      const drop = document.createElement('div');
+      drop.className = 'cursor__ink-drop';
+      const size = 3 + Math.random() * 6;
+      const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.8;
+      const dist = 20 + Math.random() * 35;
+      drop.style.cssText = `left:${x}px;top:${y}px;width:${size}px;height:${size}px;`;
+      splashContainerRef.current.appendChild(drop);
+      gsap.fromTo(drop,
+        { x: 0, y: 0, scale: 1, opacity: 1, borderRadius: '50%' },
         {
           x: Math.cos(angle) * dist,
           y: Math.sin(angle) * dist,
           scale: 0,
           opacity: 0,
-          duration: 0.6,
-          ease: 'expo.out',
-          onComplete: () => particle.remove(),
+          borderRadius: `${20 + Math.random() * 30}%`,
+          duration: 0.55 + Math.random() * 0.3,
+          ease: 'power3.out',
+          onComplete: () => drop.remove(),
         }
       );
     }
-  }, []);
-
-  // Spawn trailing aurora particles on fast movement
-  const spawnTrailParticle = useCallback((x, y, speed) => {
-    if (!particleContainerRef.current) return;
-    const particle = document.createElement('div');
-    particle.className = 'cursor__aurora-particle';
-    particle.style.left = `${x + (Math.random() - 0.5) * 20}px`;
-    particle.style.top = `${y + (Math.random() - 0.5) * 20}px`;
-    const size = 3 + Math.random() * 4;
-    particle.style.width = `${size}px`;
-    particle.style.height = `${size}px`;
-    particleContainerRef.current.appendChild(particle);
-
-    gsap.fromTo(
-      particle,
-      { scale: 1, opacity: 0.6 },
-      {
-        scale: 0,
-        opacity: 0,
-        y: (Math.random() - 0.5) * 40,
-        x: (Math.random() - 0.5) * 40,
-        duration: 0.5 + Math.random() * 0.4,
-        ease: 'power2.out',
-        onComplete: () => particle.remove(),
-      }
+    // Center burst ripple
+    const ripple = document.createElement('div');
+    ripple.className = 'cursor__ink-ripple';
+    ripple.style.cssText = `left:${x}px;top:${y}px;`;
+    splashContainerRef.current.appendChild(ripple);
+    gsap.fromTo(ripple,
+      { scale: 0, opacity: 0.5 },
+      { scale: 4, opacity: 0, duration: 0.6, ease: 'expo.out', onComplete: () => ripple.remove() }
     );
   }, []);
 
   useEffect(() => {
-    const crosshair = crosshairRef.current;
-    const ring = ringRef.current;
-    const glow = glowRef.current;
-    const trails = trailRefs.current;
+    const dot = dotRef.current;
+    const helixContainer = helixContainerRef.current;
+    const label = labelRef.current;
+    const strandA = helixRefs.current.a;
+    const strandB = helixRefs.current.b;
+
+    const lerp = (a, b, t) => a + (b - a) * t;
 
     const onMove = (e) => {
       prevPos.current = { ...pos.current };
@@ -96,97 +77,94 @@ export default function Cursor() {
         x: pos.current.x - prevPos.current.x,
         y: pos.current.y - prevPos.current.y,
       };
-      gsap.set(crosshair, { x: e.clientX, y: e.clientY });
+
+      // Move label
+      if (label) {
+        gsap.set(label, { x: e.clientX + 18, y: e.clientY - 8 });
+      }
     };
 
-    const lerp = (a, b, t) => a + (b - a) * t;
-
     const tick = () => {
+      phaseRef.current += 0.12;
+
       const speed = Math.sqrt(
         velocityRef.current.x ** 2 + velocityRef.current.y ** 2
       );
 
-      // Ring follows with springy delay
-      ringPos.current.x = lerp(ringPos.current.x, pos.current.x, 0.15);
-      ringPos.current.y = lerp(ringPos.current.y, pos.current.y, 0.15);
+      // Liquid dot follows with magnetic snap
+      const dotLerp = isHovering.current ? 0.22 : 0.18;
+      dotPos.current.x = lerp(dotPos.current.x, pos.current.x, dotLerp);
+      dotPos.current.y = lerp(dotPos.current.y, pos.current.y, dotLerp);
 
-      // Glow follows with even more delay
-      glowPos.current.x = lerp(glowPos.current.x, pos.current.x, 0.08);
-      glowPos.current.y = lerp(glowPos.current.y, pos.current.y, 0.08);
-
-      // Rotating ring with velocity-based morph
-      ringAngle.current += 0.03;
-      const morph = Math.min(speed * 0.5, 18);
-      const a1 = 50 + Math.sin(ringAngle.current) * morph;
-      const a2 = 50 + Math.cos(ringAngle.current * 0.7) * morph;
-      const a3 = 50 + Math.sin(ringAngle.current * 1.3 + 1) * morph;
-      const a4 = 50 + Math.cos(ringAngle.current * 0.5 + 2) * morph;
-
+      // Dot stretch based on velocity (squash & stretch)
+      const stretchX = isClicking.current ? 0.7 : Math.max(0.7, 1 - speed * 0.015);
+      const stretchY = isClicking.current ? 0.7 : Math.min(1.6, 1 + speed * 0.015);
       const angle = Math.atan2(velocityRef.current.y, velocityRef.current.x);
-      const rotDeg = speed > 1 ? (angle * 180) / Math.PI : 0;
 
-      // Scale ring based on speed
-      const ringScale = 1 + Math.min(speed * 0.005, 0.2);
+      const dotSize = isHovering.current ? 42 : isClicking.current ? 6 : 12;
 
-      gsap.set(ring, {
-        x: ringPos.current.x,
-        y: ringPos.current.y,
-        borderRadius: `${a1}% ${100 - a1}% ${a2}% ${100 - a2}% / ${a3}% ${a4}% ${100 - a4}% ${100 - a3}%`,
-        rotation: rotDeg * 0.3 + ringAngle.current * 2,
-        scale: ringScale,
+      gsap.set(dot, {
+        x: dotPos.current.x,
+        y: dotPos.current.y,
+        scaleX: isHovering.current ? 1 : stretchX,
+        scaleY: isHovering.current ? 1 : stretchY,
+        rotation: speed > 1 ? (angle * 180) / Math.PI : 0,
+        width: dotSize,
+        height: dotSize,
       });
 
-      // Update glow orb
-      gsap.set(glow, {
-        x: glowPos.current.x,
-        y: glowPos.current.y,
-        opacity: Math.min(speed * 0.03, 0.4),
-      });
-
-      // Trail follows with cascading delay — aurora trail
-      for (let i = TRAIL_COUNT - 1; i > 0; i--) {
-        trailPositions.current[i].x = lerp(
-          trailPositions.current[i].x,
-          trailPositions.current[i - 1].x,
-          0.28
+      // Trail helix positions
+      for (let i = HELIX_POINTS - 1; i > 0; i--) {
+        helixPositions.current[i].x = lerp(
+          helixPositions.current[i].x,
+          helixPositions.current[i - 1].x,
+          0.35
         );
-        trailPositions.current[i].y = lerp(
-          trailPositions.current[i].y,
-          trailPositions.current[i - 1].y,
-          0.28
+        helixPositions.current[i].y = lerp(
+          helixPositions.current[i].y,
+          helixPositions.current[i - 1].y,
+          0.35
         );
       }
-      trailPositions.current[0].x = lerp(
-        trailPositions.current[0].x,
-        pos.current.x,
-        0.45
-      );
-      trailPositions.current[0].y = lerp(
-        trailPositions.current[0].y,
-        pos.current.y,
-        0.45
-      );
+      helixPositions.current[0].x = lerp(helixPositions.current[0].x, dotPos.current.x, 0.5);
+      helixPositions.current[0].y = lerp(helixPositions.current[0].y, dotPos.current.y, 0.5);
 
-      // Cycle hue for aurora effect
-      hueRef.current = (hueRef.current + 0.5) % 360;
+      // Update helix strands — double helix oscillating perpendicular to movement direction
+      const moveAngle = Math.atan2(velocityRef.current.y, velocityRef.current.x);
+      const perpX = -Math.sin(moveAngle);
+      const perpY = Math.cos(moveAngle);
+      const helixAmplitude = Math.min(speed * 1.2, 10);
+      const helixOpacity = Math.min(speed / 5, 1);
 
-      trails.forEach((trail, i) => {
-        if (!trail) return;
-        const trailOpacity = speed > 2 ? (1 - i / TRAIL_COUNT) * 0.6 : 0;
-        gsap.set(trail, {
-          x: trailPositions.current[i].x,
-          y: trailPositions.current[i].y,
-          opacity: trailOpacity,
-          scale: 1 - (i / TRAIL_COUNT) * 0.5,
+      strandA.forEach((pt, i) => {
+        if (!pt) return;
+        const t = i / HELIX_POINTS;
+        const wave = Math.sin(phaseRef.current - i * 0.6) * helixAmplitude;
+        const alpha = (1 - t) * 0.7 * helixOpacity;
+        const size = (1 - t) * 4 + 2;
+        gsap.set(pt, {
+          x: helixPositions.current[i].x + perpX * wave,
+          y: helixPositions.current[i].y + perpY * wave,
+          opacity: alpha,
+          width: size,
+          height: size,
         });
       });
 
-      // Spawn floating particles on fast movement
-      const now = Date.now();
-      if (speed > 4 && now - lastParticleTime.current > 40) {
-        spawnTrailParticle(pos.current.x, pos.current.y, speed);
-        lastParticleTime.current = now;
-      }
+      strandB.forEach((pt, i) => {
+        if (!pt) return;
+        const t = i / HELIX_POINTS;
+        const wave = Math.sin(phaseRef.current - i * 0.6 + Math.PI) * helixAmplitude;
+        const alpha = (1 - t) * 0.4 * helixOpacity;
+        const size = (1 - t) * 3 + 1.5;
+        gsap.set(pt, {
+          x: helixPositions.current[i].x + perpX * wave,
+          y: helixPositions.current[i].y + perpY * wave,
+          opacity: alpha,
+          width: size,
+          height: size,
+        });
+      });
 
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -194,62 +172,84 @@ export default function Cursor() {
     rafRef.current = requestAnimationFrame(tick);
     document.addEventListener('mousemove', onMove);
 
-    // Hover state
-    const cursor = cursorRef.current;
-    const addHover = () => cursor?.classList.add('hovering');
-    const rmHover = () => cursor?.classList.remove('hovering');
-    const addClick = () => {
-      cursor?.classList.add('clicking');
-      spawnBurst(pos.current.x, pos.current.y);
+    // Hover
+    const handleEnter = (e) => {
+      isHovering.current = true;
+      dot.classList.add('hovering');
+      const labelText = e.currentTarget.dataset.cursorLabel;
+      if (label && labelText) {
+        label.textContent = labelText;
+        gsap.to(label, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' });
+      }
     };
-    const rmClick = () => cursor?.classList.remove('clicking');
+    const handleLeave = () => {
+      isHovering.current = false;
+      dot.classList.remove('hovering');
+      if (label) {
+        gsap.to(label, { opacity: 0, y: 6, duration: 0.2 });
+        label.textContent = '';
+      }
+    };
+    const handleDown = () => {
+      isClicking.current = true;
+      dot.classList.add('clicking');
+      spawnSplash(pos.current.x, pos.current.y);
+    };
+    const handleUp = () => {
+      isClicking.current = false;
+      dot.classList.remove('clicking');
+    };
 
-    document.addEventListener('mousedown', addClick);
-    document.addEventListener('mouseup', rmClick);
+    document.addEventListener('mousedown', handleDown);
+    document.addEventListener('mouseup', handleUp);
 
-    const magneticEls = document.querySelectorAll('[data-magnetic]');
-    magneticEls.forEach((el) => {
-      el.addEventListener('mouseenter', addHover);
-      el.addEventListener('mouseleave', rmHover);
-    });
+    // Attach hover to interactive elements
+    const query = 'a, button, [data-hover], [data-magnetic], [data-cursor-label]';
+    const attachHover = () => {
+      document.querySelectorAll(query).forEach((el) => {
+        el.addEventListener('mouseenter', handleEnter);
+        el.addEventListener('mouseleave', handleLeave);
+      });
+    };
+    attachHover();
 
-    const hoverEls = document.querySelectorAll('a, button, [data-hover]');
-    hoverEls.forEach((el) => {
-      el.addEventListener('mouseenter', addHover);
-      el.addEventListener('mouseleave', rmHover);
-    });
+    // Re-attach after DOM changes (e.g., modals)
+    const observer = new MutationObserver(attachHover);
+    observer.observe(document.body, { childList: true, subtree: true });
 
     return () => {
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mousedown', addClick);
-      document.removeEventListener('mouseup', rmClick);
       cancelAnimationFrame(rafRef.current);
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mousedown', handleDown);
+      document.removeEventListener('mouseup', handleUp);
+      observer.disconnect();
     };
-  }, [spawnBurst, spawnTrailParticle]);
+  }, [spawnSplash]);
 
   return (
-    <div className="cursor" ref={cursorRef}>
-      {/* Aurora trail dots */}
-      {Array.from({ length: TRAIL_COUNT }).map((_, i) => (
+    <>
+      {/* Helix strand A (solid) */}
+      {Array.from({ length: HELIX_POINTS }).map((_, i) => (
         <div
-          key={i}
-          className="cursor__trail"
-          ref={(el) => (trailRefs.current[i] = el)}
-          style={{ '--trail-i': i }}
+          key={`a${i}`}
+          className="cursor__helix cursor__helix--a"
+          ref={(el) => (helixRefs.current.a[i] = el)}
         />
       ))}
-      {/* Glow orb */}
-      <div className="cursor__glow" ref={glowRef} />
-      {/* Morphing ring */}
-      <div className="cursor__ring" ref={ringRef} />
-      {/* Crosshair center */}
-      <div className="cursor__crosshair" ref={crosshairRef}>
-        <span className="cursor__crosshair-line cursor__crosshair-line--h" />
-        <span className="cursor__crosshair-line cursor__crosshair-line--v" />
-        <span className="cursor__crosshair-dot" />
-      </div>
-      {/* Particle container for bursts & aurora */}
-      <div className="cursor__particle-container" ref={particleContainerRef} />
-    </div>
+      {/* Helix strand B (hollow) */}
+      {Array.from({ length: HELIX_POINTS }).map((_, i) => (
+        <div
+          key={`b${i}`}
+          className="cursor__helix cursor__helix--b"
+          ref={(el) => (helixRefs.current.b[i] = el)}
+        />
+      ))}
+      {/* Liquid magnetic dot */}
+      <div className="cursor__liquid-dot" ref={dotRef} />
+      {/* Contextual label */}
+      <div className="cursor__label" ref={labelRef} />
+      {/* Ink splash container */}
+      <div className="cursor__splash-container" ref={splashContainerRef} />
+    </>
   );
 }
