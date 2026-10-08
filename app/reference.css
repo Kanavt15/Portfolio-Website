@@ -301,10 +301,38 @@ h2 {
   color: #dbccaf;
 }
 .skill-shelf li {
-  background: #173032;
-  color: #c4d0c5;
-  border-color: #38534e;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #283731, #152729);
+  color: #ddd9c6;
+  border-color: #8a795445;
   font-size: 12px;
+  box-shadow: inset 0 1px 0 #d7bf8910;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+.skill-shelf li:hover {
+  border-color: #b69c6a99;
+  background: #2c3c35;
+}
+.skill-logo {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  background: radial-gradient(circle, #cbb17620, #cbb17600 75%);
+  border-radius: 4px;
+}
+.skill-logo img {
+  object-fit: contain;
+  filter: saturate(0.72) brightness(1.18) drop-shadow(0 0 3px #d6bc8226);
+}
+.skill-logo[data-treatment="brass"] img {
+  filter: brightness(0) invert(86%) sepia(24%) saturate(560%) hue-rotate(352deg)
+    drop-shadow(0 0 3px #d6bc8226);
 }
 .experience-date,
 .experience-role {

@@ -39,7 +39,7 @@ export default function ReferenceHouseScene({
           { DRACOLoader },
           { RoomEnvironment },
           { RectAreaLightUniformsLib },
-          { personalizeModel },
+          { personalizeModel, loadSkillLogos },
         ] = await Promise.all([
           import("three"),
           import("three/addons/loaders/GLTFLoader.js"),
@@ -201,6 +201,7 @@ export default function ReferenceHouseScene({
           canvas.remove();
         };
 
+        const logos = loadSkillLogos(request.signal);
         // Read the local model with real byte progress and abort on navigation.
         const response = await fetch("/models/portfolio-house.glb", {
           signal: request.signal,
@@ -233,7 +234,12 @@ export default function ReferenceHouseScene({
         chunks.length = 0;
         const gltf = await loader.parseAsync(bytes.buffer, "/models/");
         // A load can finish after React unmounts, including during Strict Mode.
-        personalization = personalizeModel(gltf.scene, projects, skillGroups);
+        personalization = personalizeModel(
+          gltf.scene,
+          projects,
+          skillGroups,
+          await logos,
+        );
         if (disposed) {
           personalization.dispose();
           return;

@@ -1,4 +1,6 @@
 import * as THREE from "three";
+import { createSkillDisplayTexture } from "./skill-screens.js";
+export { loadSkillLogos } from "./skill-screens.js";
 
 export function createDisplayTexture(title, subtitle, accent = "#bca475") {
   const canvas = document.createElement("canvas");
@@ -68,7 +70,12 @@ function normalizeScreenUV(object, geometries, flipX = false) {
   uv.needsUpdate = true;
 }
 
-export function personalizeModel(model, projects, skillGroups = []) {
+export function personalizeModel(
+  model,
+  projects,
+  skillGroups = [],
+  skillLogos = {},
+) {
   const textures = [],
     materials = [],
     geometries = [],
@@ -112,10 +119,7 @@ export function personalizeModel(model, projects, skillGroups = []) {
   });
   materials.push(generalScreen);
   const skillMaterials = skillGroups.map((group) => {
-    const texture = createDisplayTexture(group.name, [
-      group.items.slice(0, 3).join(" / "),
-      group.items.slice(3).join(" / "),
-    ]);
+    const texture = createSkillDisplayTexture(group, skillLogos);
     textures.push(texture);
     const material = new THREE.MeshBasicMaterial({
       map: texture,

@@ -62,7 +62,11 @@ test("reference screen graphics are replaced and the fourth pod can display ever
   const context = new Proxy(
     {},
     {
-      get: (target, key) => target[key] ?? (() => {}),
+      get: (target, key) => {
+        if (key === "createLinearGradient" || key === "createRadialGradient")
+          return () => ({ addColorStop() {} });
+        return target[key] ?? (() => {});
+      },
       set: (target, key, value) => {
         target[key] = value;
         return true;

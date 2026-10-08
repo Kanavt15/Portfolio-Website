@@ -10,6 +10,7 @@ import {
 import Image from "next/image";
 import HouseScene from "../reference/ReferenceHouseScene";
 import ProjectArtwork from "./ProjectArtwork";
+import { skillIconPath, skillIconTreatment } from "./skill-icons";
 import { awards, projects, rooms, skillGroups } from "./portfolio-data";
 
 function HouseIcon({ size = 24 }) {
@@ -556,7 +557,21 @@ export default function HousePortfolio() {
                   <h3>{name}</h3>
                   <ul>
                     {items.map((value) => (
-                      <li key={value}>{value}</li>
+                      <li key={value}>
+                        <span
+                          className="skill-logo"
+                          data-treatment={skillIconTreatment(value)}
+                        >
+                          <Image
+                            src={skillIconPath(value)}
+                            width={22}
+                            height={22}
+                            alt=""
+                            unoptimized
+                          />
+                        </span>
+                        {value}
+                      </li>
                     ))}
                   </ul>
                 </div>
