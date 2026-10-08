@@ -10,12 +10,13 @@ export function sampleTrack(keys, position) {
   const index = keys.findIndex((key) => key.position > position);
   const a = keys[index - 1],
     b = keys[index];
+  if (position === a.position) return a.value;
   if (!a.connectedRight || a.type === "hold") return a.value;
   const fraction = (position - a.position) / (b.position - a.position);
   let low = 0,
     high = 1,
     t = fraction;
-  for (let i = 0; i < 16; i++) {
+  for (let i = 0; i < 24; i++) {
     t = (low + high) / 2;
     if (cubic(t, a.handles?.[2] ?? 1 / 3, b.handles?.[0] ?? 2 / 3) < fraction)
       low = t;
@@ -28,7 +29,7 @@ export function sampleTrack(keys, position) {
   );
 }
 
-export const tourTimes = [0, 1.133, 3.467, 4.467, 6.833, 9.2, 9.867];
+export const tourTimes = [0, 1.133, 3.467, 4.467, 6.833, 9.867, 10];
 export function tourTime(progress) {
   const p = clamp(progress, 0, tourTimes.length - 1);
   const i = Math.min(tourTimes.length - 2, Math.floor(p));

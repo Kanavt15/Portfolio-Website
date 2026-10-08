@@ -82,7 +82,7 @@
   width: 47%;
 }
 .tour-room {
-  min-height: 125svh;
+  min-height: 160svh;
   padding-top: 170px;
   padding-bottom: 170px;
 }
@@ -172,7 +172,7 @@ h2 {
   color: #b2bfb9;
 }
 .gallery-room {
-  min-height: 150svh;
+  min-height: 170svh;
 }
 .gallery-content {
   max-width: 600px;
@@ -549,7 +549,7 @@ summary {
   .tour-room {
     background: #0c191b;
     padding: 95px 7% 120px;
-    min-height: 110svh;
+    min-height: 140svh;
     scroll-margin-top: 0;
   }
   .room-content {
@@ -586,7 +586,7 @@ summary {
     font-size: 18px;
   }
   .gallery-room {
-    min-height: 135svh;
+    min-height: 155svh;
   }
   .gallery-heading h2 {
     font-size: 45px;

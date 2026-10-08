@@ -41,7 +41,7 @@ export const projects = [
     art: "cells",
   },
   {
-    name: "KJSIT Connect",
+    name: "SSTC",
     tab: "SSTC",
     type: "Full-stack / Campus community",
     description:
@@ -52,29 +52,47 @@ export const projects = [
     image: "/projects/sstc.png",
     imageAlt: "KJSIT Connect student collaboration platform landing page",
   },
+];
+
+export const skillGroups = [
+  { name: "Languages", items: ["C", "C++", "JavaScript", "Python", "SQL"] },
   {
-    name: "Peblo",
-    type: "Mobile / AI storytelling",
-    description:
-      "An interactive story companion for children. AI-generated adventures, expressive narration, quizzes, and achievements make reading a playful daily habit.",
-    tags: ["Flutter", "Dart", "Riverpod", "ElevenLabs"],
-    source: "https://github.com/Kanavt15/Peblo",
-    live: "https://raw.githubusercontent.com/Kanavt15/Peblo/main/screenshots/app_demo.mp4",
-    liveLabel: "Watch demo",
-    art: "story",
-    image: "/projects/peblo.jpg",
-    imageAlt: "Peblo mobile app with an illustrated interactive story",
-    imageFit: "contain",
+    name: "Backend & APIs",
+    items: ["Node.js", "Express.js", "Flask", "REST APIs", "Authentication"],
   },
   {
-    name: "Spam Email Detection",
-    tab: "Spam detection",
-    type: "Machine learning / Classification",
-    description:
-      "A Bayesian spam classifier with a Flask API and an interactive web interface. Inspect prediction probabilities and dataset statistics to understand how a message is classified.",
-    tags: ["Python", "Flask", "Naive Bayes", "JavaScript"],
-    source: "https://github.com/Kanavt15/Spam-Email-Detection",
-    art: "mail",
+    name: "Frontend & 3D",
+    items: [
+      "React",
+      "Next.js",
+      "Three.js",
+      "TypeScript",
+      "Electron",
+      "Blender",
+    ],
+  },
+  {
+    name: "Databases",
+    items: ["MySQL", "MongoDB", "PostgreSQL", "Database design"],
+  },
+  {
+    name: "Machine learning",
+    items: [
+      "TensorFlow",
+      "PyTorch",
+      "Scikit-learn",
+      "OpenCV",
+      "CNNs",
+      "Data preprocessing",
+    ],
+  },
+  {
+    name: "Core concepts",
+    items: ["DSA", "OOP", "DBMS", "Operating Systems", "Computer Networks"],
+  },
+  {
+    name: "Tools & cloud",
+    items: ["Git", "GitHub", "VS Code", "AWS Cloud", "Docker", "Linux"],
   },
 ];
 
@@ -108,7 +126,7 @@ export const rooms = [
     id: "projects",
     name: "The workshop",
     label: "Projects",
-    floor: "Seven projects",
+    floor: "Five projects",
   },
   {
     id: "contact",

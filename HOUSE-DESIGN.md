@@ -1,20 +1,25 @@
 # The Trivedi house
 
-A countryside house becomes a directory for Kanav's work. The garden introduces the portfolio, the living room holds the biography, the gallery presents projects, the study shows skills, the library describes experience, the landing displays recognition, and the sunroom invites a conversation.
+The user-supplied reference house and its authored camera sequence form a seven-stop tour of Kanav's portfolio. The route covers the introduction, biography, experience, recognition, skills, projects, and contact details. The reference's personal content is replaced with Kanav's résumé details and project information.
 
-The visual system uses warm white (`#f7f8f2`), forest (`#263f34`, `#365641`), pale sky (`#dce6e2`), sage (`#aab69a`), and oak (`#997554`). Outfit carries the architectural headings; DM Sans handles reading and navigation. Both fonts are served locally, with their OFL licenses in `public/fonts`.
+The visual system pairs ink blue (`#0c191b`), deep teal (`#102529`), warm brass (`#d6b98b`), ivory (`#f0ece2`), and muted sage (`#b2bfb9`) with the detailed industrial interior. Outfit carries the architectural headings; DM Sans handles reading and navigation. Both fonts are served locally, with their OFL licenses in `public/fonts`.
 
-The house is the primary visual. Supporting UI stays quiet, aligned to a single reading column. The project gallery receives the most space, a large interactive project panel, and a matching display inside the house. Room views hold before moving to the next stop so motion does not compete with reading.
+The house is the primary visual, with readable HTML content in a separate reading column. The workshop features only ReFace, Vanaspati, SkillVerse, CAD-C, and SSTC. Four physical displays show the projects; the fourth switches between CAD-C and SSTC. Every project also has keyboard-accessible tabs and a source link. Available public demos are linked, including the user-provided ReFace URL.
+
+The skills section contains languages, backend APIs, frontend and 3D tools, databases, machine learning, core computer-science concepts, and development/cloud tools. Content comes from the existing portfolio, résumé, and project technologies, without invented proficiency percentages.
+
+Normal room sections are 160svh on desktop and 140svh on mobile. Camera movement spans 70% of the distance between room starts, with damping reduced from 5 to 2.2 for a slower response. The projects view has a longer hold. Reduced motion changes directly between room views. Native page scrolling remains available.
 
 ## Working on the portfolio
 
-Run `npm run dev`, then open http://localhost:3000. Run `npm run build` for production and `npm test` for the visitor-path and scene-lifecycle checks.
+Run `npm run dev`, then open http://localhost:3000. Run `npm run build` for production and `npm test` for camera sampling, screen personalization, and model/project checks.
 
-- `components/house/portfolio-data.js`: project links, room names, and recognition.
+- `components/house/portfolio-data.js`: the five projects, skills, room names, and recognition.
 - `components/house/HousePortfolio.js`: content, accessible project tabs, room directory, and scroll progress.
-- `components/house/create-house.js`: procedural architecture, furniture, landscape, and project displays.
-- `components/house/HouseScene.js`: lazy WebGL initialization, camera, room cutaways, visitor animation, and disposal.
-- `components/house/tour-motion.js`: camera stops and continuous walking path, including stairs.
-- `app/house.css`: typography, layout, loading scene, and responsive styles.
+- `components/reference/ReferenceHouseScene.js`: local GLB loading, lighting, camera, project interactions, and resource disposal.
+- `components/reference/camera-sampler.js`: samples the saved Theatre.js camera route without adding the Theatre runtime.
+- `components/reference/personalize-model.js`: replaces the reference's embedded screen atlas with Kanav's display textures.
+- `app/house.css` and `app/reference.css`: base layout and the reference interior's visual theme.
+- `THIRD-PARTY-NOTICES.md`: provenance and original terms for the supplied assets.
 
-The renderer limits pixel density and frame rate, reduces shadow resolution on phones, and pauses when the tab is hidden. Reduced motion follows the operating system setting and can also be selected in the page. Content remains available when JavaScript or WebGL is unavailable. No external model or animation assets are required.
+The renderer limits pixel density and frame rate and pauses when the tab is hidden. Reduced motion follows the operating system setting and can also be selected in the page. The loader reports real download progress and can be dismissed while the house loads. HTML content and the expanded project directory remain available without WebGL. The model, decoder, camera sequence, fonts, and project images are served locally. The earlier procedural scene modules are retained but are not mounted by the current page.

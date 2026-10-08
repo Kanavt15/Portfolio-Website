@@ -10,7 +10,7 @@ import {
 import Image from "next/image";
 import HouseScene from "../reference/ReferenceHouseScene";
 import ProjectArtwork from "./ProjectArtwork";
-import { awards, projects, rooms } from "./portfolio-data";
+import { awards, projects, rooms, skillGroups } from "./portfolio-data";
 
 function HouseIcon({ size = 24 }) {
   return (
@@ -117,7 +117,9 @@ export default function HousePortfolio() {
         next === index
           ? 0
           : (y - offsets[index]) / (offsets[next] - offsets[index]);
-      const hold = rooms[index].id === "projects" ? 0.78 : 0.6;
+      // Spread the journey over more scroll distance instead of rushing the
+      // camera through a short transition at the end of each room.
+      const hold = rooms[index].id === "projects" ? 0.7 : 0.3;
       const fraction = Math.min(1, Math.max(0, (raw - hold) / (1 - hold)));
       travel.current = index + fraction;
       const visible = sections.findLastIndex(
@@ -540,49 +542,20 @@ export default function HousePortfolio() {
           <div className="room-content">
             <RoomLabel id="skills" />
             <h2 id="skills-title">
-              The tools
+              Skills that
               <br />
-              on my desk.
+              bring ideas to life.
             </h2>
             <p className="room-intro">
-              Different ideas need different tools. These are the ones I keep
-              coming back to.
+              From backend services and database design to interactive 3D and
+              machine learning. The tools and foundations behind my work.
             </p>
             <div className="skill-shelves">
-              {[
-                ["Languages", ["Python", "JavaScript", "C / C++", "SQL"]],
-                [
-                  "Systems & interfaces",
-                  [
-                    "Node.js",
-                    "Express",
-                    "REST APIs",
-                    "React",
-                    "Next.js",
-                    "Three.js",
-                  ],
-                ],
-                [
-                  "Machine learning",
-                  ["TensorFlow", "PyTorch", "Scikit-learn", "OpenCV"],
-                ],
-                [
-                  "Data & infrastructure",
-                  [
-                    "PostgreSQL",
-                    "MongoDB",
-                    "MySQL",
-                    "AWS",
-                    "Docker",
-                    "Git",
-                    "Linux",
-                  ],
-                ],
-              ].map(([label, values]) => (
-                <div className="skill-shelf" key={label}>
-                  <h3>{label}</h3>
+              {skillGroups.map(({ name, items }) => (
+                <div className="skill-shelf" key={name}>
+                  <h3>{name}</h3>
                   <ul>
-                    {values.map((value) => (
+                    {items.map((value) => (
                       <li key={value}>{value}</li>
                     ))}
                   </ul>
@@ -607,7 +580,7 @@ export default function HousePortfolio() {
               <p>
                 The workshop
                 <br />
-                <span>Seven projects, on display.</span>
+                <span>Five projects, on display.</span>
               </p>
             </div>
             <div

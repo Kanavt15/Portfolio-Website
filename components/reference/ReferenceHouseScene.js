@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { projects } from "../house/portfolio-data";
+import { projects, skillGroups } from "../house/portfolio-data";
 import cameraPath from "./camera-path.json";
 import { createCameraSampler, tourTime } from "./camera-sampler";
 
@@ -97,7 +97,9 @@ export default function ReferenceHouseScene({
           startY = 0;
         let offsetX = 0,
           offsetY = 0,
-          modelReady = false;
+          modelReady = false,
+          sceneLoaded = false,
+          needsRender = true;
         const pointer = new THREE.Vector2();
         const raycaster = new THREE.Raycaster();
         const offset = new THREE.Quaternion();
@@ -109,6 +111,7 @@ export default function ReferenceHouseScene({
           renderer.setSize(width, height);
           camera.aspect = width / height;
           camera.updateProjectionMatrix();
+          needsRender = true;
         };
         const lost = (event) => {
           event.preventDefault();
@@ -164,8 +167,9 @@ export default function ReferenceHouseScene({
           moved = false;
         };
         const visibility = () => {
-          if (!document.hidden && modelReady && !contextLost) {
+          if (!document.hidden && sceneLoaded && !contextLost) {
             previous = 0;
+            needsRender = true;
             cancelAnimationFrame(frame);
             frame = requestAnimationFrame(render);
           }
@@ -229,7 +233,7 @@ export default function ReferenceHouseScene({
         chunks.length = 0;
         const gltf = await loader.parseAsync(bytes.buffer, "/models/");
         // A load can finish after React unmounts, including during Strict Mode.
-        personalization = personalizeModel(gltf.scene, projects);
+        personalization = personalizeModel(gltf.scene, projects, skillGroups);
         if (disposed) {
           personalization.dispose();
           return;
@@ -295,8 +299,19 @@ export default function ReferenceHouseScene({
           previous = now;
           const animate = motionRef.current;
           const target = animate ? travel.current : Math.round(travel.current);
+          // The rooms are static. Keep watching for scroll, but avoid redrawing
+          // the entire house while a visitor is reading a settled view.
+          if (
+            modelReady &&
+            !needsRender &&
+            !dragging &&
+            Math.abs(current - target) < 0.0001 &&
+            Math.abs(offsetX) + Math.abs(offsetY) < 0.0001 &&
+            displayedProject === projectRef.current
+          )
+            return;
           current = animate
-            ? THREE.MathUtils.damp(current, target, 5, dt)
+            ? THREE.MathUtils.damp(current, target, 2.2, dt)
             : target;
           const pose = sampler(tourTime(current));
           camera.position.set(
@@ -328,6 +343,7 @@ export default function ReferenceHouseScene({
             personalization.selectProject(displayedProject);
           }
           renderer.render(scene, camera);
+          needsRender = false;
           if (!modelReady) {
             modelReady = true;
             onProgress(100);
@@ -348,6 +364,7 @@ export default function ReferenceHouseScene({
         );
         await renderer.compileAsync(scene, camera);
         if (!disposed) {
+          sceneLoaded = true;
           frame = requestAnimationFrame(render);
         }
       } catch (error) {

@@ -32,7 +32,8 @@ export function createDisplayTexture(title, subtitle, accent = "#bca475") {
   ctx.fillText(title, 75, 298, 870);
   ctx.fillStyle = "#a5bcb5";
   ctx.font = "26px sans-serif";
-  ctx.fillText(subtitle, 75, 365, 860);
+  const lines = Array.isArray(subtitle) ? subtitle : [subtitle];
+  lines.forEach((line, index) => ctx.fillText(line, 75, 365 + index * 42, 860));
   ctx.fillStyle = accent;
   ctx.fillRect(75, 460, 98, 5);
   ctx.font = "22px sans-serif";
@@ -44,7 +45,30 @@ export function createDisplayTexture(title, subtitle, accent = "#bca475") {
   return texture;
 }
 
-export function personalizeModel(model, projects) {
+function normalizeScreenUV(object, geometries, flipX = false) {
+  const geometry = object.geometry.clone();
+  geometries.push(geometry);
+  object.geometry = geometry;
+  const uv = geometry.getAttribute("uv");
+  if (!uv) return;
+  let minX = Infinity,
+    maxX = -Infinity,
+    minY = Infinity,
+    maxY = -Infinity;
+  for (let i = 0; i < uv.count; i++) {
+    minX = Math.min(minX, uv.getX(i));
+    maxX = Math.max(maxX, uv.getX(i));
+    minY = Math.min(minY, uv.getY(i));
+    maxY = Math.max(maxY, uv.getY(i));
+  }
+  for (let i = 0; i < uv.count; i++) {
+    const x = (uv.getX(i) - minX) / (maxX - minX || 1);
+    uv.setXY(i, flipX ? 1 - x : x, (uv.getY(i) - minY) / (maxY - minY || 1));
+  }
+  uv.needsUpdate = true;
+}
+
+export function personalizeModel(model, projects, skillGroups = []) {
   const textures = [],
     materials = [],
     geometries = [],
@@ -87,6 +111,19 @@ export function personalizeModel(model, projects) {
     metalness: 0.1,
   });
   materials.push(generalScreen);
+  const skillMaterials = skillGroups.map((group) => {
+    const texture = createDisplayTexture(group.name, [
+      group.items.slice(0, 3).join(" / "),
+      group.items.slice(3).join(" / "),
+    ]);
+    textures.push(texture);
+    const material = new THREE.MeshBasicMaterial({
+      map: texture,
+      side: THREE.DoubleSide,
+    });
+    materials.push(material);
+    return material;
+  });
   const displays = [];
   model.traverse((object) => {
     if (!object.isMesh) return;
@@ -100,41 +137,22 @@ export function personalizeModel(model, projects) {
     );
     object.material = Array.isArray(object.material) ? updated : updated[0];
     let ancestor = object,
-      projectIndex = -1;
+      projectIndex = -1,
+      monitorIndex = -1;
     while (ancestor && ancestor !== model) {
       const match = /^Project_(\d+)/.exec(ancestor.name);
       if (match) {
         projectIndex = Number(match[1]) - 1;
         break;
       }
+      const monitor = /^Monitor_(\d+)/.exec(ancestor.name);
+      if (monitor) monitorIndex = Number(monitor[1]) - 1;
       ancestor = ancestor.parent;
     }
     if (projectIndex >= 0 && projectIndex < projects.length) {
       // The supplied screens sample an atlas. Remap their UV bounds to use
       // one full project display instead of keeping the original atlas crop.
-      const geometry = object.geometry.clone();
-      geometries.push(geometry);
-      object.geometry = geometry;
-      const uv = geometry.getAttribute("uv");
-      if (uv) {
-        let minX = Infinity,
-          maxX = -Infinity,
-          minY = Infinity,
-          maxY = -Infinity;
-        for (let i = 0; i < uv.count; i++) {
-          minX = Math.min(minX, uv.getX(i));
-          maxX = Math.max(maxX, uv.getX(i));
-          minY = Math.min(minY, uv.getY(i));
-          maxY = Math.max(maxY, uv.getY(i));
-        }
-        for (let i = 0; i < uv.count; i++)
-          uv.setXY(
-            i,
-            (uv.getX(i) - minX) / (maxX - minX || 1),
-            (uv.getY(i) - minY) / (maxY - minY || 1),
-          );
-        uv.needsUpdate = true;
-      }
+      normalizeScreenUV(object, geometries, projectIndex === 3);
       const material = new THREE.MeshBasicMaterial({
         map: projectTextures[projectIndex],
         side: THREE.DoubleSide,
@@ -144,6 +162,16 @@ export function personalizeModel(model, projects) {
       object.userData.projectIndex = projectIndex;
       targets.push(object);
       displays.push({ object, material, index: projectIndex });
+    } else if (
+      monitorIndex >= 0 &&
+      skillMaterials.length &&
+      original.length === 1 &&
+      /ScreensGraphics/.test(original[0].name)
+    ) {
+      // GLTF screen primitives are separate from the monitor casing. Replace
+      // only the screen, keeping the model's metal and plastic finishes intact.
+      normalizeScreenUV(object, geometries);
+      object.material = skillMaterials[monitorIndex % skillMaterials.length];
     }
   });
   // The source has four physical pods. The fourth is a changing showcase for

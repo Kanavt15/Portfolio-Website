@@ -163,26 +163,71 @@ export default function ProjectArtwork({ kind }) {
         height="330"
         fill={
           kind === "cells"
-            ? "#d3cbdf"
+            ? "#17272e"
             : kind === "study"
               ? "#d5d9ca"
               : "#d6c9ae"
         }
       />
       {kind === "cells" ? (
-        <g fill="#9c8aae" stroke="#746181" strokeWidth="2">
-          {[
-            [180, 120, 42],
-            [295, 190, 60],
-            [395, 105, 48],
-            [425, 255, 30],
-            [155, 245, 28],
-          ].map(([x, y, r], i) => (
-            <g key={i}>
-              <circle cx={x} cy={y} r={r} />
-              <circle cx={x + 5} cy={y - 4} r={r * 0.4} fill="#c9b7cf" />
-            </g>
-          ))}
+        <g>
+          <text
+            x="30"
+            y="36"
+            fill="#c7d9d8"
+            fontSize="13"
+            fontFamily="sans-serif"
+          >
+            CT volume / 3D neural networks
+          </text>
+          <ellipse
+            cx="300"
+            cy="176"
+            rx="168"
+            ry="116"
+            fill="#81979b"
+            stroke="#bdd1d1"
+            strokeWidth="2"
+          />
+          <ellipse cx="300" cy="176" rx="153" ry="105" fill="#445b63" />
+          <path
+            d="M269 88C225 70 167 130 173 188C176 230 227 251 260 219C282 198 249 169 270 143C286 124 290 99 269 88Z"
+            fill="#0c1b22"
+            stroke="#a4b8bd"
+            strokeWidth="2"
+          />
+          <path
+            d="M331 88C375 70 433 130 427 188C424 230 373 251 340 219C318 198 351 169 330 143C314 124 310 99 331 88Z"
+            fill="#0c1b22"
+            stroke="#a4b8bd"
+            strokeWidth="2"
+          />
+          <path
+            d="m220 115 21 62-31 29m31-29-41-24m41 24 12 30m127-92-21 62 31 29m-31-29 41-24m-41 24-12 30"
+            stroke="#718f9a"
+            strokeWidth="3"
+            fill="none"
+          />
+          <ellipse cx="300" cy="229" rx="18" ry="21" fill="#c6d6d2" />
+          <circle cx="379" cy="186" r="9" fill="#d6b98b" />
+          <circle
+            cx="379"
+            cy="186"
+            r="20"
+            fill="none"
+            stroke="#d6b98b"
+            strokeDasharray="3 4"
+          />
+          <path d="M399 186h72v-55h49" fill="none" stroke="#d6b98b" />
+          <text
+            x="30"
+            y="303"
+            fill="#a4b8bd"
+            fontSize="11"
+            fontFamily="sans-serif"
+          >
+            CAD-C · An experimental classification system
+          </text>
         </g>
       ) : kind === "study" ? (
         <g fill="#f7f5eb" stroke="#9aab8d" strokeWidth="2">
