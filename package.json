@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --test tests/reference-tour.test.mjs"
   },
   "dependencies": {
     "@studio-freight/lenis": "^1.0.42",
@@ -15,7 +16,8 @@
     "next": "16.3.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "react-pdf": "^11.0.0"
+    "react-pdf": "^11.0.0",
+    "three": "^0.186.1"
   },
   "devDependencies": {
     "eslint": "^9",

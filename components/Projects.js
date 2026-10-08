@@ -13,6 +13,7 @@ const PROJECTS = [
     desc: 'Real-time facial re-texture desktop app built on Electron.js, Python (MediaPipe), and Three.js. Leverages Blender for 3D mesh generation and live-streams modified video through WebGL.',
     tags: ['Electron', 'Three.js', 'Python', 'Blender', 'MediaPipe'],
     url: 'https://github.com/Kanavt15/reface-id',
+    demo: 'https://reface-website.onrender.com',
   },
   {
     num: '02',
