@@ -1,5 +1,4 @@
-import "./house.css";
-import "./reference.css";
+import "./globals.css";
 
 export const metadata = {
   title: "Kanav Trivedi — Developer & ML Engineer",
@@ -10,11 +9,12 @@ export const metadata = {
     "portfolio",
     "backend developer",
     "machine learning",
+    "computer vision",
     "Mumbai",
   ],
   openGraph: {
     title: "Kanav Trivedi — Developer & ML Engineer",
-    description: "Portfolio of Kanav Trivedi",
+    description: "Portfolio of Kanav Trivedi — Developer & ML Engineer based in Mumbai.",
     type: "website",
   },
 };
