@@ -6,6 +6,7 @@ import { profile } from "@/lib/data";
 import { useShell } from "../shell/AppShell";
 import { Magnetic, WordRotate } from "../ui/primitives";
 import { ArrowRight, ArrowUpRight } from "../ui/icons";
+import HeroVisual from "./HeroVisual";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -68,7 +69,8 @@ export default function Hero() {
         />
       ))}
 
-      <motion.div className="container" style={{ y, opacity, scale }}>
+      <motion.div className="container hero-container" style={{ y, opacity, scale }}>
+        <HeroVisual loaded={loaded} />
         <motion.div className="hero-badge" {...fade(0.1)}>
           <span className="pulse">
             <i /> Available
